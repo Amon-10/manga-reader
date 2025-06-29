@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Manga Reader MVP</Text>
+      <Text style={styles.title}>Manga Reader MVP boom</Text>
       <Text style={styles.subtitle}>You're up and running!</Text>
     </View>
   );
