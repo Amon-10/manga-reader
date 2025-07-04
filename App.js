@@ -1,10 +1,15 @@
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, Button } from 'react-native';
 
 export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Manga Reader MVP boom</Text>
       <Text style={styles.subtitle}>You're up and running!</Text>
+      {<Button
+        title="Go to browse"
+        onPress={() => console.log("Browse screen placeholder")}
+      />}
     </View>
   );
 }
