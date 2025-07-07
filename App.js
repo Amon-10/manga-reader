@@ -2,14 +2,27 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
 function LibraryScreen() {
+  const dummyManga = [
+    {id: '1', title: 'One Piece'},
+    {id: '2', title: 'Naruto'},
+    {id: '3', title: 'Tokyo ghoul'},
+  ];
+
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>Library</Text>
+    <View style={{ flex: 1, padding: 16 }}>
+      <FlatList 
+        data={dummyManga}
+        keyExtractor={(item) => item.id}
+        renderItem={({item}) => (
+        <View style={{ marginBottom: 12 }}>
+          <Text style={{fontSize: 18}}>{item.title}</Text>
+        </View>)}
+      />
     </View>
   );
 }
