@@ -34,7 +34,7 @@ function LibraryScreen() {
         <View style={{ flexDirection: 'row', marginBottom: 12, alignItems: 'center' }}>
           <Image 
             source={{ uri: item.thumbnail }}
-            style={{ width: 60, height:90, mar5ginRight: 12, borderRadius: 4 }}
+            style={{ width: 60, height:90, marginRight: 12, borderRadius: 4 }}
           />
           <Text style={{fontSize: 18}}>
             {item.title}
