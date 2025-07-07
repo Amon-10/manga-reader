@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, FlatList, Image } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -36,9 +36,21 @@ function LibraryScreen() {
             source={{ uri: item.thumbnail }}
             style={{ width: 120, height:200, marginRight: 12, borderRadius: 4 }}
           />
-          <Text style={{fontSize: 18}}>
-            {item.title}
-          </Text>
+          <View style={{ flex: 1, justifyContent: 'space-between' }}>
+            <Text style={{ fontSize: 18, marginBottom: 8 }}>
+              {item.title}
+            </Text>
+            
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity style={{ backgroundColor: '#4CAF50', padding: 6, borderRadius: 4 }}>
+                <Text style={{ color: '#fff' }}>Continue</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={{ backgroundColor: '#f44336', padding: 6, borderRadius: 4 }}>
+                <Text style={{ color: '#fff' }}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>)}
       />
     </View>
