@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,32 +24,31 @@ function LibraryScreen() {
       thumbnail: 'https://th.bing.com/th/id/OIP.3WOE0d3rVVi06Wovztcr0wHaLR?w=201&h=306&c=7&r=0&o=5&pid=1.7',
     },
   ];
+  const [mangaList, setMangaList] = useState(dummyManga);
+
+  const handleRemove = (id) => {
+  setMangaList(prevList => prevList.filter(manga => manga.id !== id));
+  };
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
+    <View style={{ flex: 1, padding: 14 }}>
       <FlatList 
-        data={dummyManga}
+        data={mangaList}
         numColumns={2}
         keyExtractor={(item) => item.id}
         renderItem={({item}) => (
-        <View style={{ position: 'relative' }}>
+        <View style={{ position: 'relative',marginBottom: 10 }}>
           <Image 
             source={{ uri: item.thumbnail }}
             style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
           />
-          <Text style={{ position:'absolute', bottom: 5, left: 5, color: 'white', backgroundColor: 'rgba(0,0,0,0.6)', padding: 2, borderRadius: 7, fontSize: 15 }}>
-            {item.title}
-            
-            
-            {/* <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TouchableOpacity style={{ backgroundColor: '#4CAF50', padding: 6, borderRadius: 4 }}>
-                <Text style={{ color: '#fff' }}>Continue</Text>
-              </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleRemove(item.id)}
+          style={{ position:'absolute', top: 5, right: 17, backgroundColor: '#f44336', padding: 2, borderRadius: 4 }}>
+              <Text style={{ color: '#fff' }}>Remove</Text>
+          </TouchableOpacity>
 
-              <TouchableOpacity style={{ backgroundColor: '#f44336', padding: 6, borderRadius: 4 }}>
-                <Text style={{ color: '#fff' }}>Remove</Text>
-              </TouchableOpacity>
-            </View> */}
+          <Text style={{ position:'absolute', bottom: 5, left: 5, color: 'white', backgroundColor: 'rgba(0,0,0,0.6)', padding: 2, borderRadius: 4, fontSize: 15 }}>
+            {item.title}
           </Text>
         </View>)}
       />
