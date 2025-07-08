@@ -32,15 +32,14 @@ function LibraryScreen() {
         numColumns={2}
         keyExtractor={(item) => item.id}
         renderItem={({item}) => (
-        <View style={{ flexDirection: 'row', marginBottom: 12, alignItems: 'center' }}>
+        <View style={{ position: 'relative' }}>
           <Image 
             source={{ uri: item.thumbnail }}
-            style={{ width: 160, height:220, marginRight: 12, borderRadius: 4 }}
+            style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
           />
-          <View style={{ flex: 1, justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 18, marginBottom: 8 }}>
-              {item.title}
-            </Text>
+          <Text style={{ position:'absolute', bottom: 5, left: 5, color: 'white', backgroundColor: 'rgba(0,0,0,0.6)', padding: 2, borderRadius: 7, fontSize: 15 }}>
+            {item.title}
+            
             
             {/* <View style={{ flexDirection: 'row', gap: 10 }}>
               <TouchableOpacity style={{ backgroundColor: '#4CAF50', padding: 6, borderRadius: 4 }}>
@@ -51,7 +50,7 @@ function LibraryScreen() {
                 <Text style={{ color: '#fff' }}>Remove</Text>
               </TouchableOpacity>
             </View> */}
-          </View>
+          </Text>
         </View>)}
       />
     </View>
