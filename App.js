@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, Touchable } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -86,12 +86,14 @@ function BrowseScreen() {
               source={{ uri: item.thumbnail }}
               style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
             />
+            <TouchableOpacity style={{ position:'absolute', top: 5, right: 17, backgroundColor: '#4CAF50', padding: 2, borderRadius: 4}}>
+              <Text style={{color: '#fff'}}>Add to library</Text>
+            </TouchableOpacity>
             <Text style={{ position:'absolute', bottom: 5, left: 5, color: 'white', backgroundColor: 'rgba(0,0,0,0.6)', padding: 2, borderRadius: 4, fontSize: 15 }}>
               {item.title}
             </Text>
           </View>
         )}/>
-      <Text>Browse</Text>
     </View>
   );
 }
