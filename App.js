@@ -57,8 +57,40 @@ function LibraryScreen() {
 }
 
 function BrowseScreen() {
+  const dummyBrowseData = [
+    {
+      id: '1', 
+      title: 'One Piece',
+      thumbnail: 'https://areajugones.sport.es/wp-content/uploads/2019/09/OnePiecePoster.jpg',
+    },
+    {
+      id: '2', 
+      title: 'Tokyo ghoul',
+      thumbnail: 'https://th.bing.com/th/id/OIP.6mrZO44Dax_bf-cq-0eFzwHaKd?w=203&h=287&c=7&r=0&o=7&pid=1.7&rm=3'
+    },
+    {
+      id: '3', 
+      title: 'Attack on Titan',
+      thumbnail: 'https://th.bing.com/th/id/OIP.3WOE0d3rVVi06Wovztcr0wHaLR?w=201&h=306&c=7&r=0&o=5&pid=1.7',
+    },
+  ];
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+    <View style={{ flex: 1, padding: 14 }}>
+      <FlatList
+        data={dummyBrowseData}
+        numColumns={2}
+        keyExtractor={(item) => item.id}
+        renderItem={({item}) => (
+          <View style={{ position: 'relative', marginBottom: 10}}>
+            <Image 
+              source={{ uri: item.thumbnail }}
+              style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
+            />
+            <Text style={{ position:'absolute', bottom: 5, left: 5, color: 'white', backgroundColor: 'rgba(0,0,0,0.6)', padding: 2, borderRadius: 4, fontSize: 15 }}>
+              {item.title}
+            </Text>
+          </View>
+        )}/>
       <Text>Browse</Text>
     </View>
   );
