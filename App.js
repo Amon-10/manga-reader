@@ -3,8 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
-import Counter from './counter';
-import Temp from './Temp';
+import Browse from './Browse';
 
 const Tab = createBottomTabNavigator();
 
@@ -165,6 +164,6 @@ export default function App() {
       </Tab.Navigator>
     </NavigationContainer>
   ); */
-  return <Temp />
+  return <Browse />
 }
 
