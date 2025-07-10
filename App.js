@@ -2,10 +2,13 @@ import React, {useState} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, FlatList, Image, TouchableOpacity, Touchable } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
+import Counter from './counter';
+import Temp from './Temp';
 
 const Tab = createBottomTabNavigator();
 
+/* Library */
 function LibraryScreen() {
   const dummyManga = [
     {
@@ -24,7 +27,7 @@ function LibraryScreen() {
       thumbnail: 'https://th.bing.com/th/id/OIP.3WOE0d3rVVi06Wovztcr0wHaLR?w=201&h=306&c=7&r=0&o=5&pid=1.7',
     },
   ];
-  const [mangaList, setMangaList] = useState(dummyManga);
+  /* const [mangaList, setMangaList] = useState(dummyManga); */
 
   const handleRemove = (id) => {
   setMangaList(prevList => prevList.filter(manga => manga.id !== id));
@@ -56,6 +59,7 @@ function LibraryScreen() {
   );
 }
 
+/* Browse */
 function BrowseScreen() {
   const dummyBrowseData = [
     {
@@ -65,14 +69,24 @@ function BrowseScreen() {
     },
     {
       id: '2', 
-      title: 'Tokyo ghoul',
-      thumbnail: 'https://th.bing.com/th/id/OIP.6mrZO44Dax_bf-cq-0eFzwHaKd?w=203&h=287&c=7&r=0&o=7&pid=1.7&rm=3'
+      title: 'kono oto tomare',
+      thumbnail: 'https://th.bing.com/th/id/OIP.EHyu_Pw3XRUzETH5qT1oggHaLH?w=201&h=302&c=7&r=0&o=7&pid=1.7&rm=3'
     },
     {
       id: '3', 
       title: 'Attack on Titan',
       thumbnail: 'https://th.bing.com/th/id/OIP.3WOE0d3rVVi06Wovztcr0wHaLR?w=201&h=306&c=7&r=0&o=5&pid=1.7',
     },
+    {
+      id: '4',
+      title: 'Berserk',
+      thumbnail: 'https://th.bing.com/th/id/OIP.fyrdu2Swsa9NuJitn-anWgHaKi?w=127&h=180&c=7&r=0&o=5&pid=1.7'
+    },
+    {
+      id: '5',
+      title: 'Frieren',
+      thumbnail: 'https://th.bing.com/th/id/OIP.B3miyOevlCrPdPlEtLRitAHaLo?w=199&h=313&c=7&r=0&o=7&pid=1.7&rm=3'
+    }
   ];
   return (
     <View style={{ flex: 1, padding: 14 }}>
@@ -97,7 +111,7 @@ function BrowseScreen() {
     </View>
   );
 }
-
+/* History */
 function HistoryScreen() {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -106,6 +120,7 @@ function HistoryScreen() {
   );
 }
 
+/* More */
 function MoreScreen() {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -115,6 +130,7 @@ function MoreScreen() {
 }
 
 export default function App() {
+  /* const [mangaList, setMangaList] = useState([]);
   return (
     <NavigationContainer>
       <Tab.Navigator initialRouteName='Library'
@@ -142,12 +158,13 @@ export default function App() {
           tabBarInactiveTintColor: 'gray',
         })}
         >
-        <Tab.Screen name="Library" component={LibraryScreen}/>
+        <Tab.Screen name="Library" children={() => <BrowseScreen mangaList={mangaList} setMangaList={setMangaList}/>}/>
         <Tab.Screen name="History" component={HistoryScreen}/>
-        <Tab.Screen name="Browse" component={BrowseScreen}/>
+        <Tab.Screen name="Browse" children={() => <BrowseScreen mangaList={mangaList} setMangaList={setMangaList}/>}/>
         <Tab.Screen name="More" component={MoreScreen}/>
       </Tab.Navigator>
     </NavigationContainer>
-  );
+  ); */
+  return <Temp />
 }
 
