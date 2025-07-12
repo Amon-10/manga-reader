@@ -3,13 +3,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
-import Browse from './Browse';
 
 const Tab = createBottomTabNavigator();
 
 /* Library */
-function LibraryScreen() {
-  const dummyManga = [
+function LibraryScreen({mangaList, setMangaList}) {
+  /* const dummyManga = [
     {
       id: '1', 
       title: 'One Piece',
@@ -25,8 +24,7 @@ function LibraryScreen() {
       title: 'Attack on Titan',
       thumbnail: 'https://th.bing.com/th/id/OIP.3WOE0d3rVVi06Wovztcr0wHaLR?w=201&h=306&c=7&r=0&o=5&pid=1.7',
     },
-  ];
-  /* const [mangaList, setMangaList] = useState(dummyManga); */
+  ]; */
 
   const handleRemove = (id) => {
   setMangaList(prevList => prevList.filter(manga => manga.id !== id));
@@ -59,7 +57,7 @@ function LibraryScreen() {
 }
 
 /* Browse */
-function BrowseScreen() {
+function BrowseScreen({mangaList, setMangaList}) {
   const dummyBrowseData = [
     {
       id: '1', 
@@ -87,6 +85,18 @@ function BrowseScreen() {
       thumbnail: 'https://th.bing.com/th/id/OIP.B3miyOevlCrPdPlEtLRitAHaLo?w=199&h=313&c=7&r=0&o=7&pid=1.7&rm=3'
     }
   ];
+
+ /*  mangaList.some(checkManga = (id) => {manga => manga.id !== id }); */
+  /* function checkManga(id){
+    return (
+      manga => manga.id !== id
+    );
+  } */
+  const handleAddToLibrary = (item) => {
+    if (!mangaList.some(manga =>  manga.id === item.id )){
+      setMangaList([...mangaList,  item ]);}
+  }
+  console.log('mangaList:' ,mangaList);
   return (
     <View style={{ flex: 1, padding: 14 }}>
       <FlatList
@@ -99,7 +109,7 @@ function BrowseScreen() {
               source={{ uri: item.thumbnail }}
               style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
             />
-            <TouchableOpacity style={{ position:'absolute', top: 5, right: 17, backgroundColor: '#4CAF50', padding: 2, borderRadius: 4}}>
+            <TouchableOpacity onPress={() => handleAddToLibrary(item)} style={{ position:'absolute', top: 5, right: 17, backgroundColor: '#4CAF50', padding: 2, borderRadius: 4}}>
               <Text style={{color: '#fff'}}>Add to library</Text>
             </TouchableOpacity>
             <Text style={{ position:'absolute', bottom: 5, left: 5, color: 'white', backgroundColor: 'rgba(0,0,0,0.6)', padding: 2, borderRadius: 4, fontSize: 15 }}>
@@ -129,7 +139,8 @@ function MoreScreen() {
 }
 
 export default function App() {
-  /* const [mangaList, setMangaList] = useState([]);
+  const [mangaList, setMangaList] = useState([]);
+  
   return (
     <NavigationContainer>
       <Tab.Navigator initialRouteName='Library'
@@ -157,13 +168,19 @@ export default function App() {
           tabBarInactiveTintColor: 'gray',
         })}
         >
-        <Tab.Screen name="Library" children={() => <BrowseScreen mangaList={mangaList} setMangaList={setMangaList}/>}/>
+        <Tab.Screen name="Library">
+          {() => <LibraryScreen mangaList={mangaList} setMangaList={setMangaList}/>}
+        </Tab.Screen>
+
         <Tab.Screen name="History" component={HistoryScreen}/>
-        <Tab.Screen name="Browse" children={() => <BrowseScreen mangaList={mangaList} setMangaList={setMangaList}/>}/>
+
+        <Tab.Screen name="Browse">
+          {() => <BrowseScreen mangaList={mangaList} setMangaList={setMangaList}/> }
+        </Tab.Screen>
+
         <Tab.Screen name="More" component={MoreScreen}/>
       </Tab.Navigator>
     </NavigationContainer>
-  ); */
-  return <Browse />
+  ); 
 }
 

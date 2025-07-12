@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {View, Text, Button, FlatList, Image, TouchableOpacity} from 'react-native';
 
-export default function Browse(){
+export default function Browse({ mangaList, setMangaList}){
      const dummyManga = [
         {
             id:'1',
@@ -19,11 +19,11 @@ export default function Browse(){
             thumbnail:'https://th.bing.com/th/id/OIP.fyrdu2Swsa9NuJitn-anWgHaKi?w=127&h=180&c=7&r=0&o=5&pid=1.7',
         },
      ]   
-
+     
     return (
         <View style={{flex: 1, padding: 14}}>
             <FlatList
-                data={dummyManga}
+                data={mangaList}
                 numColumns={2}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
