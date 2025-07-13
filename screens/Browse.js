@@ -1,7 +1,8 @@
 import React from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
-export default function BrowseScreen({mangaList, setMangaList}) {
+export default function BrowseScreen({mangaList, setMangaList, navigation}) {
   const dummyBrowseData = [
     {
       id: '1', 
@@ -43,16 +44,18 @@ export default function BrowseScreen({mangaList, setMangaList}) {
         keyExtractor={(item) => item.id}
         renderItem={({item}) => (
           <View style={{ position: 'relative', marginBottom: 10}}>
-            <Image 
-              source={{ uri: item.thumbnail }}
-              style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
-            />
-            <TouchableOpacity onPress={() => handleAddToLibrary(item)} style={{ position:'absolute', top: 5, right: 17, backgroundColor: '#4CAF50', padding: 2, borderRadius: 4}}>
-              <Text style={{color: '#fff'}}>Add to library</Text>
+            <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
+              <Image 
+                source={{ uri: item.thumbnail }}
+                style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
+              />
+              <Text style={{ position:'absolute', bottom: 5, left: 5, color: 'white', backgroundColor: 'rgba(0,0,0,0.6)', padding: 2, borderRadius: 4, fontSize: 15 }}>
+                {item.title}
+              </Text>
             </TouchableOpacity>
-            <Text style={{ position:'absolute', bottom: 5, left: 5, color: 'white', backgroundColor: 'rgba(0,0,0,0.6)', padding: 2, borderRadius: 4, fontSize: 15 }}>
-              {item.title}
-            </Text>
+              <TouchableOpacity onPress={() => handleAddToLibrary(item)} style={{ position:'absolute', top: 5, right: 17, backgroundColor: '#4CAF50', padding: 2, borderRadius: 4}}>
+                <Text style={{color: '#fff'}}>Add to library</Text>
+              </TouchableOpacity>
           </View>
         )}/>
     </View>

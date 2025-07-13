@@ -3,7 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
-import {BrowseScreen, LibraryScreen, HistoryScreen, MoreScreen} from './screens';
+import { LibraryScreen, HistoryScreen, MoreScreen} from './screens';
+import BrowseStack from './screens/BrowseStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -43,8 +44,8 @@ export default function App() {
 
         <Tab.Screen name="History" component={HistoryScreen}/>
 
-        <Tab.Screen name="Browse">
-          {() => <BrowseScreen mangaList={mangaList} setMangaList={setMangaList}/> }
+        <Tab.Screen name="Browse" options={{ headerShown: false }}>
+          {() => <BrowseStack mangaList={mangaList} setMangaList={setMangaList}/> }
         </Tab.Screen>
 
         <Tab.Screen name="More" component={MoreScreen}/>
