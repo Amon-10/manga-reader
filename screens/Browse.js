@@ -32,7 +32,7 @@ export default function BrowseScreen({mangaList, setMangaList, navigation}) {
   ];
 
   const handleAddToLibrary = (item) => {
-    if (!mangaList.some(manga =>  manga.id === item.id )){ /* check if manga already exists in mangalist if it does not then proceed */
+    if (!mangaList.some(manga =>  manga.id === item.id )){ /* check duplicates in mangalist no duplicates then proceed */
       setMangaList([...mangaList,  item ]);} /* update mangaList and add the item(manga) to it */
   }
 
