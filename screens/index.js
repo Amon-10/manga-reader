@@ -1,8 +1,6 @@
-import { registerRootComponent } from 'expo';
-
-import App from './App';
-
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
-registerRootComponent(App);
+// screens/index.js
+export { default as BrowseScreen } from './Browse';
+export { default as LibraryScreen } from './Library';
+export { default as HistoryScreen } from './History';
+export { default as MoreScreen } from './More';
+export { default as MangaDetailsScreen } from './MangaDetailsScreen';
