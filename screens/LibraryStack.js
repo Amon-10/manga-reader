@@ -1,23 +1,21 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {BrowseScreen, MangaDetailsScreen} from './index';
+import {LibraryScreen, MangaDetailsScreen} from './index';
 
 const Stack = createNativeStackNavigator();
 
-export default function BrowseStack({mangaList, setMangaList}) {
-    return (
+export default function LibraryStack({mangaList, setMangaList}){
+    return(
         <Stack.Navigator>
-            <Stack.Screen name='Browse'>
+            <Stack.Screen name='Library'>
                 {(props) => (
-                    <BrowseScreen
+                    <LibraryScreen
                     {...props}
                     mangaList={mangaList}
                     setMangaList={setMangaList}
                     />
-                )}
-            </Stack.Screen> 
+                )}                
+            </Stack.Screen>
             <Stack.Screen name='MangaDetails' component={MangaDetailsScreen} options={{ title: 'Details'}} />
         </Stack.Navigator>
     );
 }
-
-

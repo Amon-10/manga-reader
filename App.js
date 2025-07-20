@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { LibraryScreen, HistoryScreen, MoreScreen} from './screens';
 import BrowseStack from './screens/BrowseStack';
+import LibraryStack from './screens/LibraryStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -38,8 +39,8 @@ export default function App() {
           tabBarInactiveTintColor: 'gray',
         })}
         >
-        <Tab.Screen name="Library">
-          {() => <LibraryScreen mangaList={mangaList} setMangaList={setMangaList}/>}
+        <Tab.Screen name="Library" options={{ headerShown: false }}>
+          {() => <LibraryStack mangaList={mangaList} setMangaList={setMangaList}/>}
         </Tab.Screen>
 
         <Tab.Screen name="History" component={HistoryScreen}/>
