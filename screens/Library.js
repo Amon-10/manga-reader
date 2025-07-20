@@ -10,7 +10,7 @@ export default function LibraryScreen({mangaList, setMangaList}) {
   return (
     <View style={{ flex: 1, padding: 14 }}>
       {mangaList.length === 0
-      ? <View style={{alignItems:'center', marginTop:270}}><Text>Library empty</Text></View>
+      ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>Library empty</Text></View>
       :
    
       <FlatList 
