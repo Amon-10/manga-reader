@@ -3,9 +3,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
-import { LibraryScreen, HistoryScreen, MoreScreen} from './screens';
+import { HistoryScreen, MoreScreen} from './screens';
 import BrowseStack from './screens/BrowseStack';
 import LibraryStack from './screens/LibraryStack';
+import { StatusBar } from 'expo-status-bar';
 
 const Tab = createBottomTabNavigator();
 
@@ -14,6 +15,7 @@ export default function App() {
   
   return (
     <NavigationContainer>
+      <StatusBar style="dark" />
       <Tab.Navigator initialRouteName='Library'
       screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
@@ -39,6 +41,7 @@ export default function App() {
           tabBarInactiveTintColor: 'gray',
         })}
         >
+
         <Tab.Screen name="Library" options={{ headerShown: false }}>
           {() => <LibraryStack mangaList={mangaList} setMangaList={setMangaList}/>}
         </Tab.Screen>
