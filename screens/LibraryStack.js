@@ -3,15 +3,15 @@ import {LibraryScreen, MangaDetailsScreen} from './index';
 
 const Stack = createNativeStackNavigator();
 
-export default function LibraryStack({mangaList, setMangaList}){
+export default function LibraryStack({libraryList, setLibraryList}){
     return(
         <Stack.Navigator>
             <Stack.Screen name='Library'>
                 {(props) => (
                     <LibraryScreen
                     {...props}
-                    mangaList={mangaList}
-                    setMangaList={setMangaList}
+                    libraryList={libraryList}
+                    setLibraryList={setLibraryList}
                     />
                 )}                
             </Stack.Screen>

@@ -12,6 +12,7 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   const [mangaList, setMangaList] = useState([]);
+  const [libraryList, setLibraryList] = useState([]);
   
   return (
     <NavigationContainer>
@@ -43,7 +44,7 @@ export default function App() {
         >
 
         <Tab.Screen name="Library" options={{ headerShown: false }}>
-          {() => <LibraryStack mangaList={mangaList} setMangaList={setMangaList}/>}
+          {() => <LibraryStack libraryList={libraryList} setLibraryList={setLibraryList}/>}
         </Tab.Screen>
 
         <Tab.Screen name="History" component={HistoryScreen}/>

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
-export default function BrowseScreen({mangaList, setMangaList, navigation}) {
+export default function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, navigation}) {
 
   useEffect(() => {
     const fetchManga = async() => {
@@ -25,8 +25,8 @@ export default function BrowseScreen({mangaList, setMangaList, navigation}) {
   }, []);
   
   const handleAddToLibrary = (item) => {
-    if (!mangaList.some(manga =>  manga.id === item.id )){ /* check duplicates in mangalist no duplicates then proceed */
-      setMangaList([...mangaList,  item ]);} /* update mangaList and add the item(manga) to it */
+    if (!libraryList.some(manga =>  manga.slug === item.slug )){ /* check duplicates in mangalist no duplicates then proceed */
+      setLibraryList([...libraryList,  item ]);} /* update mangaList and add the item(manga) to it */
   }
 
   const getCoverUrl = (item) => {
