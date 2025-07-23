@@ -3,7 +3,7 @@ import {BrowseScreen, MangaDetailsScreen} from './index';
 
 const Stack = createNativeStackNavigator();
 
-export default function BrowseStack({mangaList, setMangaList}) {
+export default function BrowseStack({mangaList, setMangaList, libraryList, setLibraryList}) {
     return (
         <Stack.Navigator>
             <Stack.Screen name='Browse'>
@@ -12,6 +12,8 @@ export default function BrowseStack({mangaList, setMangaList}) {
                     {...props}
                     mangaList={mangaList}
                     setMangaList={setMangaList}
+                    libraryList={libraryList}
+                    setLibraryList={setLibraryList}
                     />
                 )}
             </Stack.Screen> 

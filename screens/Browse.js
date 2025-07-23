@@ -7,7 +7,7 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
   useEffect(() => {
     const fetchManga = async() => {
       try {
-        let response = await fetch('https://api.comick.fun/top');
+        const response = await fetch('https://api.comick.fun/top');
         if(!response.ok){
           throw new Error('Could not fetch resources');
         }
@@ -25,8 +25,13 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
   }, []);
   
   const handleAddToLibrary = (item) => {
-    if (!libraryList.some(manga =>  manga.slug === item.slug )){ /* check duplicates in mangalist no duplicates then proceed */
-      setLibraryList([...libraryList,  item ]);} /* update mangaList and add the item(manga) to it */
+    if (!Array.isArray(libraryList)) {
+      console.log('libraryList is not an array', libraryList);
+      return;
+    }
+
+    if (!libraryList.some(manga =>  manga.slug === item.slug )){ /* check duplicates in libraryList no duplicates then proceed */
+      setLibraryList([...libraryList,  item ]);} /* update libraryList and add the item(manga) to it */
   }
 
   const getCoverUrl = (item) => {

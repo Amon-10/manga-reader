@@ -50,7 +50,7 @@ export default function App() {
         <Tab.Screen name="History" component={HistoryScreen}/>
 
         <Tab.Screen name="Browse" options={{ headerShown: false }}>
-          {() => <BrowseStack mangaList={mangaList} setMangaList={setMangaList}/> }
+          {() => <BrowseStack mangaList={mangaList} setMangaList={setMangaList} libraryList={libraryList} setLibraryList={setLibraryList} /> }
         </Tab.Screen>
 
         <Tab.Screen name="More" component={MoreScreen}/>
