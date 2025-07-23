@@ -5,16 +5,25 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 export default function BrowseScreen({mangaList, setMangaList, navigation}) {
 
   useEffect(() => {
-    fetch('https://api.comick.fun/top')
-      .then(response => response.json())
-      .then(data => {
-      const mangaArray = data?.comicsByCurrentSeason?.data || [];
-      setMangaList(mangaArray);
-    })
-      .catch(error => console.error('error fetching manga', error))
+    const fetchManga = async() => {
+      try {
+        let response = await fetch('https://api.comick.fun/top');
+        if(!response.ok){
+          throw new Error('Could not fetch resources');
+        }
+
+        const json = await response.json();
+        const data = json?.comicsByCurrentSeason?.data || [];
+        setMangaList(data);
+      }
+      catch(error){
+        console.error(error);
+      }
+    };
+
+    fetchManga();
   }, []);
   
-
   const handleAddToLibrary = (item) => {
     if (!mangaList.some(manga =>  manga.id === item.id )){ /* check duplicates in mangalist no duplicates then proceed */
       setMangaList([...mangaList,  item ]);} /* update mangaList and add the item(manga) to it */
@@ -47,7 +56,8 @@ export default function BrowseScreen({mangaList, setMangaList, navigation}) {
                 backgroundColor: 'rgba(0,0,0,0.6)', 
                 padding: 2, 
                 borderRadius: 4, 
-                fontSize: 15 
+                fontSize: 15,
+                maxWidth: '85%' 
               }}>
                 {item.title || item.slug || 'No title'}
               </Text>
