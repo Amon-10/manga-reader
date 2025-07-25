@@ -4,10 +4,10 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 export default function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, navigation}) {
 
-  useEffect(() => {
+ /*  useEffect(() => {
     const fetchManga = async() => {
       try {
-        const response = await fetch('https://api.comick.fun/top');
+        const response = await fetch('https://api.comick.fun/top?gender=1&type=trending&comic_types=manhwa&accept_mature_content=false');
         if(!response.ok){
           throw new Error('Could not fetch resources');
         }
@@ -22,12 +22,38 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
         console.error(error);
       }
     };
-
+    
     fetchManga();
-  }, []);
+  }, []); */
+
+  useEffect(() => {
+  const fetchManga = async () => {
+    try {
+      const response = await fetch(
+        'https://api.comick.fun/top?gender=1&type=trending&comic_types=manga&accept_mature_content=false'
+      );
+
+      if (!response.ok) {
+        throw new Error('Could not fetch resources');
+      }
+
+      const json = await response.json();
+
+      const data = json?.rank || []; // 🔥 Fix is here
+
+      console.log(JSON.stringify(data.slice(0, 5), null, 2));
+      setMangaList(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchManga();
+}, []);
+
   
   const handleAddToLibrary = (item) => {
-    if (!Array.isArray(libraryList)) {
+    if (!Array.isArray(libraryList)) {   // encountered some errors so had to test it out here p.s Im keeping this comment and the code as fallback
       console.log('libraryList is not an array', libraryList);
       return;
     }
