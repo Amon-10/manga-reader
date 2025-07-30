@@ -4,28 +4,6 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 export default function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, navigation}) {
 
- /*  useEffect(() => {
-    const fetchManga = async() => {
-      try {
-        const response = await fetch('https://api.comick.fun/top?gender=1&type=trending&comic_types=manhwa&accept_mature_content=false');
-        if(!response.ok){
-          throw new Error('Could not fetch resources');
-        }
-
-        const json = await response.json();
-  
-        const data = json?.comicsByCurrentSeason?.data || [];
-        console.log(JSON.stringify(data.slice(0, 5), null, 2));
-        setMangaList(data);
-      }
-      catch(error){
-        console.error(error);
-      }
-    };
-    
-    fetchManga();
-  }, []); */
-
   useEffect(() => {
   const fetchManga = async () => {
     try {
@@ -34,16 +12,15 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
       );
 
       if (!response.ok) {
-        throw new Error('Could not fetch resources');
+        throw new Error('Could not fetch manga resources');
       }
 
       const json = await response.json();
 
       const data = json?.rank || []; // 🔥 Fix is here
 
-      console.log(JSON.stringify(data.slice(0, 5), null, 2));
       setMangaList(data);
-    } catch (error) {
+    } catch (error) {b 
       console.error(error);
     }
   };
