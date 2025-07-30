@@ -7,6 +7,11 @@ export default function MangaDetailsScreen(){
   const route = useRoute();
   const { manga } = route.params;
 
+  const getCoverUrl = (manga) => {
+    const fileName = manga.md_covers?.[0]?.b2key;
+    return fileName ? `https://meo.comick.pictures/${fileName}` : null;
+  };
+
   useEffect(() => {
     const fetchMangaDetails = async () => {
       try {
@@ -44,8 +49,8 @@ export default function MangaDetailsScreen(){
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', marginTop: 30}}>
           <Image
-            source={{uri: manga.thumbnail}}
-            style={{ width: 120, height:170, marginRight: 12, borderRadius: 7 }}
+            source={{uri: getCoverUrl(manga) || 'https://via.placeholder.com/150'}}
+            style={{ width: 120, height:170, borderRadius: 7 }}
           />
 
           <Text style={{fontSize: 20}}>{manga.title}</Text>
