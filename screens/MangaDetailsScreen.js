@@ -1,7 +1,8 @@
-import React,{ useEffect } from 'react';
+import React,{ useEffect, useLayoutEffect } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function MangaDetailsScreen(){
   const route = useRoute();
@@ -11,6 +12,21 @@ export default function MangaDetailsScreen(){
     const fileName = manga.md_covers?.[0]?.b2key;
     return fileName ? `https://meo.comick.pictures/${fileName}` : null;
   };
+
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    const parent = navigation.getParent();
+    parent?.setOptions({
+      tabBarStyle: { display: 'none' }
+    });
+
+    return () => {
+      parent?.setOptions({
+        tabBarStyle: { display: 'flex' }
+      });
+    };
+  }, [navigation]);
 
   useEffect(() => {
     const fetchMangaDetails = async () => {
@@ -58,11 +74,11 @@ export default function MangaDetailsScreen(){
           <Text style={{marginTop: 15}}>summary</Text>
 
           <TouchableOpacity onPress={() => alert('Read now button')}
-          style={{ flexDirection: 'row', alignItems:'center', backgroundColor:'red', padding: 13, borderRadius: 7, bottom: -300, left: 120}} >
+          style={{ flexDirection: 'row', alignItems:'center', backgroundColor:'red', padding: 15, borderRadius: 7, bottom: -350, left: 120}} >
 
             <Ionicons name='caret-forward-outline' color='white' size= {25}/>
 
-            <Text style={{color: 'white', fontSize: 14, marginLeft: 10}}>Read</Text>
+            <Text style={{color: 'white', fontSize: 12, marginLeft: 10}}>Read</Text>
 
           </TouchableOpacity>
         </View>
