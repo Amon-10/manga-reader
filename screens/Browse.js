@@ -17,10 +17,10 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
 
       const json = await response.json();
 
-      const data = json?.rank || []; // 🔥 Fix is here
+      const data = json?.rank || [];
 
       setMangaList(data);
-    } catch (error) {b 
+    } catch (error) { 
       console.error(error);
     }
   };
