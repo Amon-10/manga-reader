@@ -12,7 +12,7 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
       );
 
       if (!response.ok) {
-        throw new Error('Could not fetch manga resources');
+        throw new Error('API failed');
       }
 
       const json = await response.json();
@@ -21,7 +21,7 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
 
       setMangaList(data);
     } catch (error) { 
-      console.error(error);
+      console.error('Error fetching data:', error);
     }
   };
 
