@@ -55,7 +55,7 @@ export default function MangaDetailsScreen(){
 
         const data = await response.json();
         const chap = data?.chapters || [];
-        console.log(JSON.stringify(chap.slice(0,5), null, 2)); // test log
+        /* console.log(JSON.stringify(chap.slice(0,5), null, 2)); */ // test log
 
         setChapterList(chap);
 
@@ -83,7 +83,7 @@ export default function MangaDetailsScreen(){
             data={chapterList}
             keyExtractor={(item) => item.hid}
             renderItem={({item}) => (
-              <TouchableOpacity onPress={() => alert(`read chapter ${item.chap}`)}
+              <TouchableOpacity onPress={() => {navigation.navigate('ChapterReader', {chapter: item})}}
                 style={{ width: '100%', padding: 5, marginVertical: 2, backgroundColor: '#f2f2f2', left: 18 }}>
                 <Text style={{fontSize: 16}}>chapter {item.chap}</Text>
                 <Text style={{fontSize: 12}}>date added: {item.created_at.slice(0,10)}</Text>

@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {BrowseScreen, MangaDetailsScreen} from './index';
+import {BrowseScreen, ChapterReaderScreen, MangaDetailsScreen} from './index';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,7 +17,10 @@ export default function BrowseStack({mangaList, setMangaList, libraryList, setLi
                     />
                 )}
             </Stack.Screen> 
+            
             <Stack.Screen name='MangaDetails' component={MangaDetailsScreen} options={{ title: 'Details'}} />
+            
+            <Stack.Screen name='ChapterReader' component={ChapterReaderScreen} options={{ title: 'Reader'}} />
         </Stack.Navigator>
     );
 }
