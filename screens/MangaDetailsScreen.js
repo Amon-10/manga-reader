@@ -67,8 +67,8 @@ export default function MangaDetailsScreen(){
   }, []);
 
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', marginTop: 20}}>
-          {/* <View> */}
+        <View style={{ flex: 1, justifyContent: 'flex-start', marginTop: 20}}>
+          <View style={{alignItems: 'center'}}>
             <Image
               source={{uri: getCoverUrl(manga) || 'https://via.placeholder.com/150'}}
               style={{ width: 120, height:170, borderRadius: 7 }}
@@ -77,15 +77,17 @@ export default function MangaDetailsScreen(){
             <Text style={{fontSize: 20, marginTop: 10}}>{manga.title}</Text>
 
             <Text style={{marginTop: 10}}>summary</Text>
-          {/* </View> */}
+          </View>
 
           <FlatList
             data={chapterList}
             keyExtractor={(item) => item.hid}
             renderItem={({item}) => (
-              <View>
-                <Text>chapter {item.chap}</Text>
-              </View>
+              <TouchableOpacity onPress={() => alert(`read chapter ${item.chap}`)}
+                style={{ width: '100%', padding: 5, marginVertical: 2, backgroundColor: '#f2f2f2', left: 18 }}>
+                <Text style={{fontSize: 16}}>chapter {item.chap}</Text>
+                <Text style={{fontSize: 12}}>date added: {item.created_at.slice(0,10)}</Text>
+              </TouchableOpacity>
             )}
           />
           <View style={{position: 'absolute', bottom: 30, right: 10, alignItems: 'center', elevation: 5, zIndex: 100}}>
