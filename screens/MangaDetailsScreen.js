@@ -47,7 +47,7 @@ export default function MangaDetailsScreen(){
 
     const fetchChapters = async (hid) => {
       try {
-      const response = await fetch(`https://api.comick.fun/comic/${hid}/chapters?limit=500&lang=en`); // remember chapter limit is 60 rn
+      const response = await fetch(`https://api.comick.fun/comic/${hid}/chapters?limit=2000&lang=en`); // remember chapter limit is 60 rn
 
         if(!response.ok){
           throw new Error('Could not fetch chapter resources');
