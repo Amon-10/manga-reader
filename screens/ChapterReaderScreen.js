@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, Image, ScrollView, ActivityIndicator, Dimensions} from 'react-native';
+import {View, Text, Image, ScrollView, ActivityIndicator, Dimensions, FlatList} from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -47,15 +47,16 @@ export default function ChapterReaderScreen({route}){
     }
 
     return (
-        <ScrollView>
-            {pages.map((page, index) => (
+        <FlatList
+            data={pages}
+            keyExtractor={(item, index) => item.b2key + index}
+            renderItem={({ item }) =>(
                 <Image
-                    key={index}
-                    source={{ uri: `https://meo.comick.pictures/${page.b2key}`}}
-                    style={{ width: screenWidth, height: screenWidth * 1.4, resizeMode: 'contain', marginBottom: 8, }} 
+                    source={{ uri: `https://meo.comick.pictures/${item.b2key}`}}
+                    style={{ width: screenWidth, height: screenWidth * 1.4, resizeMode: 'contain', marginBottom: 8 }}
                     onError={() => console.warn(`Image ${index + 1} failed to load`)}
                 />
-            ))}
-        </ScrollView>
+            )}
+        />
     )
 }
