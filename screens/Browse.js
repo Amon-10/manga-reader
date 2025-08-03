@@ -46,7 +46,7 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
 
 
   return (
-    <View style={{ flex: 1, padding: 14 }}>
+    <View style={{ flex: 1, padding: 14, paddingBottom: 0 }}>
       <FlatList
         data={mangaList}
         numColumns={2}
