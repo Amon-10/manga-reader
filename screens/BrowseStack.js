@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {BrowseScreen, ChapterReaderScreen, MangaDetailsScreen, mangaSearchScreen} from './index';
+import {BrowseScreen, ChapterReaderScreen, MangaDetailsScreen, MangaSearchScreen} from './index';
 import {TouchableOpacity} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -31,7 +31,7 @@ export default function BrowseStack({mangaList, setMangaList, libraryList, setLi
             
             <Stack.Screen name='ChapterReader' component={ChapterReaderScreen} options={{ title: 'Reader'}} />
 
-            <Stack.Screen name='mangaSearch' component={mangaSearchScreen} options={{ title: 'Search manga'}}/>
+            <Stack.Screen name='mangaSearch' component={MangaSearchScreen}/>
         </Stack.Navigator>
     );
 }
