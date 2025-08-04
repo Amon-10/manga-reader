@@ -2,13 +2,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {BrowseScreen, ChapterReaderScreen, MangaDetailsScreen, mangaSearchScreen} from './index';
 import {TouchableOpacity} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-/* import { useNavigation } from '@react-navigation/native'; */
 
 const Stack = createNativeStackNavigator();
 
 export default function BrowseStack({mangaList, setMangaList, libraryList, setLibraryList}) {
 
-    /* const navigation = useNavigation(); */
     return (
         <Stack.Navigator>
             <Stack.Screen name='Browse' options={({ navigation }) => ({
