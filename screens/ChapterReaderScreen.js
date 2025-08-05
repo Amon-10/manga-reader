@@ -14,7 +14,7 @@ export default function ChapterReaderScreen({route}){
             try {
                 const res = await fetch(`https://api.comick.fun/chapter/${chapter.hid}/get_images`);
                 const data = await res.json();
-                console.log('testing chapter info: ', data);
+                /* console.log('testing chapter info: ', data); */
                 setPages(data);
                 
             } catch(err){
