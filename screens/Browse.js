@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { getCoverUrl } from './getCover';
 
 export default function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, navigation}) {
 
@@ -38,12 +39,6 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
     if (!libraryList.some(manga =>  manga.slug === item.slug )){ /* check duplicates in libraryList no duplicates then proceed */
       setLibraryList([...libraryList,  item ]);} /* update libraryList and add the item(manga) to it */
   }
-
-  const getCoverUrl = (item) => {
-    const fileName = item.md_covers?.[0]?.b2key;
-    return fileName ? `https://meo.comick.pictures/${fileName}` : null;
-  };
-
 
   return (
     <View style={{ flex: 1, padding: 14, paddingBottom: 0 }}>
