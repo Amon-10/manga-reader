@@ -3,6 +3,7 @@ import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { getCoverUrl } from './getCover';
 
 export default function MangaDetailsScreen(){
   const route = useRoute();
@@ -10,11 +11,6 @@ export default function MangaDetailsScreen(){
   const navigation = useNavigation();
 
   const [chapterList, setChapterList] = useState([]);
-
-  const getCoverUrl = (manga) => {
-    const fileName = manga.md_covers?.[0]?.b2key;
-    return fileName ? `https://meo.comick.pictures/${fileName}` : null;
-  };
 
   useLayoutEffect(() => {
     const parent = navigation.getParent();

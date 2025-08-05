@@ -1,16 +1,12 @@
 import React from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { getCoverUrl } from './getCover';
 
 export default function LibraryScreen({libraryList, setLibraryList, navigation}) {
 
   const handleRemove = (slug) => {
   setLibraryList(prevList => prevList.filter(manga => manga.slug !== slug));
-  };
-
-  const getCoverUrl = (manga) => {
-    const fileName = manga.md_covers?.[0]?.b2key;
-    return fileName ? `https://meo.comick.pictures/${fileName}` : null;
   };
 
   return (

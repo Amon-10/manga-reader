@@ -1,5 +1,6 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity, TextInput} from 'react-native';
+import { getCoverUrl } from './getCover';
 
 export default function MangaSearchScreen({navigation, route, libraryList, setLibraryList}){
   
@@ -40,11 +41,6 @@ export default function MangaSearchScreen({navigation, route, libraryList, setLi
       setResults([]);
     }
   }, [query]);
-
-  const getCoverUrl = (item) => {
-    const fileName = item.md_covers?.[0]?.b2key;
-    return fileName ? `https://meo.comick.pictures/${fileName}` : null;
-  };
 
   const handleAddToLibrary = (item) => {
     if (!Array.isArray(libraryList)) {   // encountered some errors so had to test it out here p.s Im keeping this comment and the code as fallback
