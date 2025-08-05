@@ -8,6 +8,11 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
   setLibraryList(prevList => prevList.filter(manga => manga.slug !== slug));
   };
 
+  const getCoverUrl = (manga) => {
+    const fileName = manga.md_covers?.[0]?.b2key;
+    return fileName ? `https://meo.comick.pictures/${fileName}` : null;
+  };
+
   return (
     <View style={{ flex: 1, padding: 14 }}>
       {libraryList.length === 0
@@ -22,16 +27,34 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
         <View style={{ position: 'relative',marginBottom: 10 }}>
           <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
             <Image 
-              source={{ uri: item.thumbnail }}
+              source={{ uri: getCoverUrl(item) }}
               style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
             />
-            <Text style={{ position:'absolute', bottom: 5, left: 5, color: 'white', backgroundColor: 'rgba(0,0,0,0.6)', padding: 2, borderRadius: 4, fontSize: 15 }}>
+            <Text style={{ 
+              position:'absolute', 
+              bottom: 5, 
+              left: 5, 
+              color: 'white', 
+              backgroundColor: 'rgba(0,0,0,0.6)', 
+              padding: 2, 
+              borderRadius: 4, 
+              fontSize: 15 
+            }}>
               {item.title || item.slug || 'no title'}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleRemove(item.slug)}
-          style={{ position:'absolute', top: 5, right: 17, backgroundColor: '#f44336', padding: 2, borderRadius: 4 }}>
-              <Text style={{ color: '#fff' }}>Remove</Text>
+          style={{ 
+            position:'absolute', 
+            top: 5, 
+            right: 17, 
+            backgroundColor: '#f44336', 
+            padding: 2, 
+            borderRadius: 4 
+          }}>
+              <Text style={{ color: '#fff' }}>
+                Remove
+              </Text>
           </TouchableOpacity>
         </View>)}
       />}

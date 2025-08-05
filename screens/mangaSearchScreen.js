@@ -1,7 +1,6 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity, TextInput} from 'react-native';
 
-
 export default function MangaSearchScreen({navigation, route, libraryList, setLibraryList}){
   
   const [query, setQuery] = useState('');
@@ -25,14 +24,13 @@ export default function MangaSearchScreen({navigation, route, libraryList, setLi
     });
   }, [navigation, query]);
 
-  // Fetching logic
   useEffect(() => {
     if (query.length > 2) {
       const fetchResults = async () => {
         try {
           const res = await fetch(`https://api.comick.fun/v1.0/search?q=${query}`);
           const data = await res.json();
-          setResults(data); // or data.comics depending on response
+          setResults(data);
         } catch (err) {
           console.error(err);
         }
