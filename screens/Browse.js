@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { getCoverUrl } from './getCover';
 
 export default function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, navigation}) {
@@ -9,16 +8,18 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
   const fetchManga = async () => {
     try {
       const response = await fetch(
-        'https://api.comick.fun/top?gender=1&type=trending&comic_types=manga&accept_mature_content=false'
+        /* 'https://api.comick.fun/top?gender=1&type=trending&comic_types=manga&accept_mature_content=false' */
+        'https://api.comick.fun/v1.0/search/?page=1&limit=16&comic_types=manga&sort=rating&showall=false&t=false'
       );
 
       if (!response.ok) {
         throw new Error('API failed');
       }
 
-      const json = await response.json();
+      const data = await response.json();
 
-      const data = json?.rank || [];
+      /* const data = json?.rank || []; */
+      /* console.log(JSON.stringify(data, null, 2)); // log test */
 
       setMangaList(data);
     } catch (error) { 
@@ -46,7 +47,9 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
         data={mangaList}
         numColumns={2}
         keyExtractor={(item, index) => item.title || item.slug}
-        renderItem={({item}) => (
+        renderItem={({item}) => {
+          console.log(JSON.stringify(item.title, null, 2)); // log test
+          return (
           <View style={{ position: 'relative', marginBottom: 10}}>
             <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
               <Image 
@@ -79,7 +82,7 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
                 <Text style={{color: '#fff'}}>Add to library</Text>
               </TouchableOpacity>
           </View>
-        )}/>
+        )}}/>
     </View>
   );
 }
