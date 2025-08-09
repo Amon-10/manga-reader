@@ -1,15 +1,22 @@
-import React, { useEffect } from 'react';
-import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator} from 'react-native';
 import { getCoverUrl } from './getCover';
 
 export default function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, navigation}) {
 
-  useEffect(() => {
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const limit = 16;
+
+  
   const fetchManga = async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
     try {
       const response = await fetch(
-        /* 'https://api.comick.fun/top?gender=1&type=trending&comic_types=manga&accept_mature_content=false' */
-        'https://api.comick.fun/v1.0/search/?page=1&limit=16&comic_types=manga&sort=rating&showall=false&t=false'
+        `https://api.comick.fun/v1.0/search/?page=${page}&limit=${limit}&comic_types=manga&sort=rating&showall=false&t=false`
       );
 
       if (!response.ok) {
@@ -18,17 +25,31 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
 
       const data = await response.json();
 
+      if (data.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
       /* const data = json?.rank || []; */
       /* console.log(JSON.stringify(data, null, 2)); // log test */
 
-      setMangaList(data);
+      setMangaList(prevList => {
+        const newItems = data.filter(
+          manga => !prevList.some(item => item.id === manga.id) // remove duplicates
+        );
+        return [...prevList, ...newItems];
+      });
+
+      setPage(prev => prev + 1);
     } catch (error) { 
       console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   };
-
-  fetchManga();
-}, []);
+  useEffect(() => {
+    fetchManga();
+  }, []);
 
   
   const handleAddToLibrary = (item) => {
@@ -46,9 +67,11 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
       <FlatList
         data={mangaList}
         numColumns={2}
-        keyExtractor={(item, index) => item.title || item.slug}
+        keyExtractor={(item) => item.title || item.slug}
+        onEndReached={fetchManga}
+        onEndReachedThreshold={0.5}
         renderItem={({item}) => {
-          console.log(JSON.stringify(item.title, null, 2)); // log test
+          /* console.log(JSON.stringify(item.title, null, 2)); // log test */
           return (
           <View style={{ position: 'relative', marginBottom: 10}}>
             <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
@@ -82,7 +105,9 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
                 <Text style={{color: '#fff'}}>Add to library</Text>
               </TouchableOpacity>
           </View>
-        )}}/>
+          )
+        }}
+        ListFooterComponent={loading ? <ActivityIndicator /> : null}/>
     </View>
   );
 }
