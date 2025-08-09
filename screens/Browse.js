@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator} from 'react-native';
 import { getCoverUrl } from './getCover';
 
-export default function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, navigation}) {
+function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, navigation}) {
 
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -71,7 +71,7 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
         onEndReached={fetchManga}
         onEndReachedThreshold={0.5}
         renderItem={({item}) => {
-          /* console.log(JSON.stringify(item.title, null, 2)); // log test */
+          console.log(JSON.stringify(item.title, null, 2)); // log test
           return (
           <View style={{ position: 'relative', marginBottom: 10}}>
             <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
@@ -111,4 +111,6 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
     </View>
   );
 }
+
+export default React.memo(BrowseScreen);
 

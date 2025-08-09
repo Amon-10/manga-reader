@@ -50,9 +50,9 @@ export default function ChapterReaderScreen({route}){
         <FlatList
             data={pages}
             keyExtractor={(item, index) => item.b2key + index}
-            initialNumToRender={3}
-            maxToRenderPerBatch={5}
-            windowSize={7}
+            initialNumToRender={6}
+            maxToRenderPerBatch={10}
+            windowSize={10}
             renderItem={({ item, index }) =>(
                 <Image
                     source={{ uri: `https://meo.comick.pictures/${item.b2key}`}}
