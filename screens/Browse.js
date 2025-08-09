@@ -7,7 +7,7 @@ export default function BrowseScreen({mangaList, setMangaList, libraryList, setL
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const limit = 16;
+  const limit = 22;
 
   
   const fetchManga = async () => {
