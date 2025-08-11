@@ -53,7 +53,7 @@ export default function App() {
           {() => <BrowseStack mangaList={mangaList} setMangaList={setMangaList} libraryList={libraryList} setLibraryList={setLibraryList} /> }
         </Tab.Screen>
 
-        <Tab.Screen name="More" component={MoreScreen}/>
+        <Tab.Screen name="More" component={MoreScreen}/> 
         
       </Tab.Navigator>
     </NavigationContainer>
