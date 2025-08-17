@@ -71,7 +71,7 @@ function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, nav
         onEndReached={fetchManga}
         onEndReachedThreshold={0.5}
         renderItem={({item}) => {
-          console.log(JSON.stringify(item.title, null, 2)); // log test
+          /* console.log(JSON.stringify(item.title, null, 2)); */ // log test
           return (
           <View style={{ position: 'relative', marginBottom: 10}}>
             <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
