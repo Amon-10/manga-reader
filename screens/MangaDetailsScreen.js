@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { getCoverUrl } from './getCover';
 
-export default function MangaDetailsScreen(){
+export default function MangaDetailsScreen({libraryList, setLibraryList}){
   const route = useRoute();
   const { manga } = route.params;
   const navigation = useNavigation();
@@ -62,23 +62,44 @@ export default function MangaDetailsScreen(){
     fetchMangaDetails();
   }, []);
 
+  const handleAddToLibrary = (manga) => {
+    if (!Array.isArray(libraryList)) {  
+      console.log('libraryList is not an array', libraryList);
+      return;
+    }
+
+    if (!libraryList.some(item =>  item.slug === manga.slug )){ 
+      setLibraryList([...libraryList,  manga ]);
+    } 
+  }
+
   const renderHeader = () => (
     <View style={{ flex: 1, justifyContent: 'flex-start', marginTop: 20}}>
-          <View style={{ flexDirection: "row"}}>
-            <View style={{alignItems: 'flex-start', paddingLeft: 10, paddingRight: 10}}>
-              <Image
-                source={{uri: getCoverUrl(manga) || 'https://via.placeholder.com/150'}}
-                style={{ width: 120, height:170, borderRadius: 7 }}
-              />
-            </View>
-            <View style={{ justifyContent: 'center', width: '60%' }}>
-              <Text style={{fontSize: 23}}>{manga.title}</Text>
-              <Text style={{fontSize: 15}}>Author: {manga.id}</Text>
-              <Text style={{fontSize: 15}}>Status:</Text>
-              <Text style={{fontSize: 15}}>Comick</Text>
-            </View>
+      <View style={{ flexDirection: "row", marginBottom: 20 }}>
+        <View style={{alignItems: 'flex-start', paddingLeft: 10, paddingRight: 10}}>
+          <Image
+            source={{uri: getCoverUrl(manga) || 'https://via.placeholder.com/150'}}
+            style={{ width: 120, height:170, borderRadius: 7 }}
+          />
+        </View>
+        <View style={{ justifyContent: 'center', width: '60%' }}>
+          <Text style={{fontSize: 23}}>{manga.title}</Text>
+          <Text style={{fontSize: 15}}>Author: {manga.id}</Text>
+          <Text style={{fontSize: 15}}>Status:</Text>
+          <Text style={{fontSize: 15}}>Comick</Text>
+        </View>
+      </View>
+
+      <View style={{ alignItems: 'center'}}>
+        <TouchableOpacity onPress={() => handleAddToLibrary(manga)}>
+          <View style={{alignItems: 'center'}}>
+            <Ionicons name='heart-outline' size={25} color={'black'}/>
           </View>
-              <Text style={{marginTop: 10}}>{manga.desc}</Text>
+          <Text style={{fontSize: 12}}>Add to library</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={{marginTop: 10}}>{manga.desc}</Text>
           
     </View>
   );
