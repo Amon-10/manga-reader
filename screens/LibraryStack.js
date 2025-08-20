@@ -15,7 +15,15 @@ export default function LibraryStack({libraryList, setLibraryList}){
                     />
                 )}                
             </Stack.Screen>
-            <Stack.Screen name='MangaDetails' component={MangaDetailsScreen} options={{ title: 'Details'}} />
+            <Stack.Screen name='MangaDetails' options={{ title: 'Details'}}>
+                {(props) => (
+                    <MangaDetailsScreen
+                        {...props}
+                        libraryList={libraryList}
+                        setLibraryList={setLibraryList}
+                    />
+                )}
+            </Stack.Screen>
 
             <Stack.Screen name='ChapterReader' component={ChapterReaderScreen} options={{ title: 'Reader'}} />
         </Stack.Navigator>
