@@ -78,14 +78,17 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
   setLibraryList(prevList => prevList.filter(manga => manga.slug !== slug));
   };
 
+  useEffect(() => {
+    const exists = libraryList.some(item => item.slug === manga.slug);
+    setIsInLibrary(exists);
+  }, [libraryList, manga.slug]);
+
   const toggleLibrary = () => {
     if (isInLibrary){
       handleRemove(manga.slug);
-      setIsInLibrary(false);
     }
     else {
       handleAddToLibrary(manga);
-      setIsInLibrary(true);
     }
   };
 
