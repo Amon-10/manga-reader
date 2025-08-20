@@ -122,7 +122,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
         </TouchableOpacity>
       </View>
 
-      <Text style={{marginTop: 10}}>{manga.desc}</Text>
+      <Text style={{marginTop: 25}}>{manga.desc}</Text>
           
     </View>
   );
