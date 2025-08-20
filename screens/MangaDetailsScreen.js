@@ -11,6 +11,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
   const navigation = useNavigation();
 
   const [chapterList, setChapterList] = useState([]);
+  const [isInLibrary, setIsInLibrary] = useState(false);
 
   useLayoutEffect(() => {
     const parent = navigation.getParent();
@@ -73,6 +74,21 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
     } 
   }
 
+  const handleRemove = (slug) => {
+  setLibraryList(prevList => prevList.filter(manga => manga.slug !== slug));
+  };
+
+  const toggleLibrary = () => {
+    if (isInLibrary){
+      handleRemove(manga.slug);
+      setIsInLibrary(false);
+    }
+    else {
+      handleAddToLibrary(manga);
+      setIsInLibrary(true);
+    }
+  };
+
   const renderHeader = () => (
     <View style={{ flex: 1, justifyContent: 'flex-start', marginTop: 20}}>
       <View style={{ flexDirection: "row", marginBottom: 20 }}>
@@ -91,11 +107,15 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
       </View>
 
       <View style={{ alignItems: 'center'}}>
-        <TouchableOpacity onPress={() => handleAddToLibrary(manga)}>
+        <TouchableOpacity onPress= {toggleLibrary}>
           <View style={{alignItems: 'center'}}>
-            <Ionicons name='heart-outline' size={25} color={'black'}/>
+            <Ionicons 
+              name={isInLibrary? 'heart' : 'heart-outline'} 
+              size={25} 
+              color={isInLibrary? 'red' : 'black'}
+            />
           </View>
-          <Text style={{fontSize: 12}}>Add to library</Text>
+          <Text style={{fontSize: 12}}>{isInLibrary? 'Remove from library' : 'Add to library'}</Text>
         </TouchableOpacity>
       </View>
 
