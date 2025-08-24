@@ -1,5 +1,5 @@
 import React,{ useEffect, useLayoutEffect, useState } from 'react';
-import {View, Text, FlatList, Image, TouchableOpacity, ScrollView} from 'react-native';
+import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
