@@ -5,8 +5,8 @@ import { getCoverUrl } from './getCover';
 
 export default function LibraryScreen({libraryList, setLibraryList, navigation}) {
 
-  const handleRemove = (slug) => {
-  setLibraryList(prevList => prevList.filter(manga => manga.slug !== slug));
+  const handleRemove = (id) => {
+  setLibraryList(prevList => prevList.filter(manga => manga.id !== id));
   };
 
   return (
@@ -39,7 +39,7 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
               {item.title || item.slug || 'no title'}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleRemove(item.slug)}
+          <TouchableOpacity onPress={() => handleRemove(item.id)}
           style={{ 
             position:'absolute', 
             top: 5, 

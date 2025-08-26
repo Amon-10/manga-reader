@@ -69,23 +69,23 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
       return;
     }
 
-    if (!libraryList.some(item =>  item.slug === manga.slug )){ 
+    if (!libraryList.some(item =>  item.id === manga.id )){ 
       setLibraryList([...libraryList,  manga ]);
     } 
   }
 
-  const handleRemove = (slug) => {
-  setLibraryList(prevList => prevList.filter(manga => manga.slug !== slug));
+  const handleRemove = (id) => {
+  setLibraryList(prevList => prevList.filter(manga => manga.id !== id));
   };
 
   useEffect(() => {
-    const exists = libraryList.some(item => item.slug === manga.slug);
+    const exists = libraryList.some(item => item.id === manga.id);
     setIsInLibrary(exists);
-  }, [libraryList, manga.slug]);
+  }, [libraryList, manga.id]);
 
   const toggleLibrary = () => {
     if (isInLibrary){
-      handleRemove(manga.slug);
+      handleRemove(manga.id);
     }
     else {
       handleAddToLibrary(manga);

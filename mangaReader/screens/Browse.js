@@ -58,7 +58,7 @@ function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, nav
       return;
     }
 
-    if (!libraryList.some(manga =>  manga.slug === item.slug )){ /* check duplicates in libraryList no duplicates then proceed */
+    if (!libraryList.some(manga =>  manga.id === item.id )){ /* check duplicates in libraryList no duplicates then proceed */
       setLibraryList([...libraryList,  item ]);} /* update libraryList and add the item(manga) to it */
   }
 

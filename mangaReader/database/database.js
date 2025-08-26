@@ -1,4 +1,4 @@
-import * as SQLite from 'expo-sqlite';
+/* import * as SQLite from 'expo-sqlite';
 
 const db = await SQLite.openDatabaseAsync('mangaReader.db');
 
@@ -24,4 +24,8 @@ export const initDB = () => {
     });
 };
 
-export default db;
+export const addToLibrary = (manga) => {
+    const { mangaId, Title}
+}
+
+export default db; */
