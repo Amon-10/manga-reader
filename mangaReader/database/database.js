@@ -9,7 +9,7 @@ export const initDB = () => {
                 mangaId TEXT PRIMARY KEY NOT NULL,
                 title TEXT,
                 coverURL TEXT,
-                lastReadChapter TEXT
+                lastReadChapter TEXT DEFAULT 0
             );`
         );
 
