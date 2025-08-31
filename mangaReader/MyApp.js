@@ -8,9 +8,9 @@ import BrowseStack from './screens/BrowseStack';
 import LibraryStack from './screens/LibraryStack';
 import { StatusBar } from 'expo-status-bar';
 
-const Tab = createBottomTabNavigator();
-
 export default function MyApp() {
+  const Tab = createBottomTabNavigator();
+
   const [mangaList, setMangaList] = useState([]);
   const [libraryList, setLibraryList] = useState([]);
   
