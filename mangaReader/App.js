@@ -10,9 +10,9 @@ export default function App(){
                     CREATE TABLE IF NOT EXISTS library (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         mangaId TEXT UNIQUE,
-                        cover TEXT,
-                        title TEXT,
-                        slug TEXT
+                        cover TEXT NOT NULL,
+                        title TEXT NOT NULL,
+                        slug TEXT NOT NULL
                     )
                 `);   
             }}
