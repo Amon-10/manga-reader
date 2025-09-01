@@ -59,12 +59,23 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
 
       } catch (error) {
         console.error(error);
+        Alert.alert('Error', error.message || 'An error occurred while adding manga');
       }
     };
     fetchMangaDetails();
   }, []);
 
   const db = useSQLiteContext();
+
+  const logLibrary = async () => {
+    try {
+      const result = await db.getAllAsync("SELECT * FROM library");
+      console.log(JSON.stringify(result, null, 2));
+    } catch (error) {
+      console.error("Error reading library:", error);
+    }
+  };
+
 
   const handleAddToLibrary = async (manga) => {
     try {
@@ -73,17 +84,20 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
         return;
       }
 
-      if (libraryList.some(item =>  item.id === manga.id )){ 
+      if (!libraryList.some(item =>  item.id === manga.id )){ 
         /* setLibraryList([...libraryList,  manga ]); */
-        console.log('Manga already exists in the library');
+        await db.runAsync( 
+          `INSERT INTO library (mangaId, cover, title, slug) VALUES (?, ?, ?, ?)`,
+          [manga.id, manga.md_covers?.[0]?.b2key, manga.title, manga.slug ]
+        ); 
+
+        await logLibrary();
       }
 
-      await db.runAsync( 
-        `INSERT INTO library (mangaId, cover, title, slug) VALUES (?, ?, ?, ?)`,
-        []
-      ); 
+      Alert.alert('Manga added Successfully!');
 
     } catch{
+      console.error(error);
 
     }
   }

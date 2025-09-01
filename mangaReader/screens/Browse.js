@@ -52,7 +52,7 @@ function BrowseScreen({mangaList, setMangaList, navigation}) {
   }, []);
 
   return (
-    <View style={{ flex: 1, padding: 14, paddingBottom: 0 }}>
+    <View style={{ flex: 1, paddingRight: 14,paddingLeft: 14, paddingBottom: 0 }}>
       <FlatList
         data={mangaList}
         numColumns={2}
@@ -62,11 +62,11 @@ function BrowseScreen({mangaList, setMangaList, navigation}) {
         renderItem={({item}) => {
           /* console.log(JSON.stringify(item.title, null, 2)); */ // log test
           return (
-          <View style={{ position: 'relative', marginBottom: 10}}>
+          <View style={{ position: 'relative'}}>
             <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
               <Image 
                 source={{ uri: getCoverUrl(item) || 'https://via.placeholder.com/150' }}
-                style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
+                style={{ width: 160, height:220, marginRight: 12, borderRadius: 7, marginTop: 10 }}
               />
               <Text style={{ 
                 position:'absolute', 
