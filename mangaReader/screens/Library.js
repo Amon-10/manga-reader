@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { getCoverUrl } from './getCover';
+import { useSQLiteContext } from 'expo-sqlite';
 
-export default function LibraryScreen({libraryList, navigation}) {
+export default function LibraryScreen({libraryList, setLibraryList, navigation}) {
+  const db = useSQLiteContext();
+
+  const showLibrary = async () => {
+    try{
+      const allMangaInLibrary = await db.getAllAsync(`SELECT * FROM library`);
+      setLibraryList(allMangaInLibrary);
+    } catch(error){
+      console.error('Could not load library', error);
+    }
+  };
+
+  useEffect(() => {
+    showLibrary();
+  }, []);
+
   return (
     <View style={{ flex: 1, padding: 14 }}>
       {libraryList.length === 0
@@ -13,12 +29,12 @@ export default function LibraryScreen({libraryList, navigation}) {
       <FlatList 
         data={libraryList}
         numColumns={2}
-        keyExtractor={(item) => item.title || item.slug}
+        keyExtractor={(item) => item.mangaId.toString()}
         renderItem={({item}) => (
         <View style={{ position: 'relative',marginBottom: 10 }}>
           <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
             <Image 
-              source={{ uri: getCoverUrl(item) }}
+              source={{ uri: item.cover }}
               style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
             />
             <Text style={{ 

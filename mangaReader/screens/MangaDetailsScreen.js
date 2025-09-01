@@ -94,16 +94,31 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
         await logLibrary();
       }
 
-      Alert.alert('Manga added Successfully!');
-
-    } catch{
+    } catch (error){
       console.error(error);
 
     }
   }
 
-  const handleRemove = (id) => {
-  setLibraryList(prevList => prevList.filter(manga => manga.id !== id));
+  const updateLibrary = async () => {
+    try{
+      const allMangaInLibrary = await db.getAllAsync(`SELECT * FROM library`);
+      setLibraryList(allMangaInLibrary);
+    }catch(error){
+      console.error('Could not load library', error);
+    }
+  }
+
+  const handleRemove = async (id) => {
+    try {
+      await db.runAsync(
+        `DELETE FROM library WHERE mangaId = ?`,
+        [id]
+      );
+      setLibraryList(prevList => prevList.filter(manga => manga.id !== id));
+    }catch (error) {
+      console.error("Error removing manga", error);
+    }
   };
 
   useEffect(() => {
