@@ -3,12 +3,7 @@ import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { getCoverUrl } from './getCover';
 
-export default function LibraryScreen({libraryList, setLibraryList, navigation}) {
-
-  const handleRemove = (id) => {
-  setLibraryList(prevList => prevList.filter(manga => manga.id !== id));
-  };
-
+export default function LibraryScreen({libraryList, navigation}) {
   return (
     <View style={{ flex: 1, padding: 14 }}>
       {libraryList.length === 0
@@ -38,19 +33,6 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
             }}>
               {item.title || item.slug || 'no title'}
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleRemove(item.id)}
-          style={{ 
-            position:'absolute', 
-            top: 5, 
-            right: 17, 
-            backgroundColor: '#f44336', 
-            padding: 2, 
-            borderRadius: 4 
-          }}>
-              <Text style={{ color: '#fff' }}>
-                Remove
-              </Text>
           </TouchableOpacity>
         </View>)}
       />}
