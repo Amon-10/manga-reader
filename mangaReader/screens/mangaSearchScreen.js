@@ -2,7 +2,7 @@ import React, { useState, useLayoutEffect, useEffect } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity, TextInput} from 'react-native';
 import { getCoverUrl } from './getCover';
 
-export default function MangaSearchScreen({navigation, route, libraryList, setLibraryList}){
+export default function MangaSearchScreen({navigation, route}){
   
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -42,16 +42,6 @@ export default function MangaSearchScreen({navigation, route, libraryList, setLi
     }
   }, [query]);
 
-  const handleAddToLibrary = (item) => {
-    if (!Array.isArray(libraryList)) {   // encountered some errors so had to test it out here p.s Im keeping this comment and the code as fallback
-      console.log('libraryList is not an array', libraryList);
-      return;
-    }
-
-    if (!libraryList.some(manga =>  manga.slug === item.slug )){ /* check duplicates in libraryList no duplicates then proceed */
-      setLibraryList([...libraryList,  item ]);} /* update libraryList and add the item(manga) to it */
-  }
-
   return (
     <View style={{ flex: 1, padding: 14, paddingBottom: 0 }}>
       <FlatList
@@ -79,17 +69,6 @@ export default function MangaSearchScreen({navigation, route, libraryList, setLi
                 {item.title || item.slug || 'No title'}
               </Text>
             </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleAddToLibrary(item)} 
-              style={{ 
-                position:'absolute', 
-                top: 5, 
-                right: 17, 
-                backgroundColor: '#4CAF50', 
-                padding: 2, 
-                borderRadius: 4
-              }}>
-                <Text style={{color: '#fff'}}>Add to library</Text>
-              </TouchableOpacity>
           </View>
         )}
       />

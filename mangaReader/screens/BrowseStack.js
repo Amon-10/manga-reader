@@ -21,8 +21,6 @@ export default function BrowseStack({mangaList, setMangaList, libraryList, setLi
                         {...props}
                         mangaList={mangaList}
                         setMangaList={setMangaList}
-                        libraryList={libraryList}
-                        setLibraryList={setLibraryList}
                     />
                 )}
             </Stack.Screen> 
@@ -43,8 +41,6 @@ export default function BrowseStack({mangaList, setMangaList, libraryList, setLi
                 {(props) => (
                     <MangaSearchScreen
                         {...props}
-                        libraryList={libraryList}
-                        setLibraryList={setLibraryList}
                     />
                 )}
             </Stack.Screen>

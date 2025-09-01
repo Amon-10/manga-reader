@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator} from 'react-native';
 import { getCoverUrl } from './getCover';
 
-function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, navigation}) {
+function BrowseScreen({mangaList, setMangaList, navigation}) {
 
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -51,17 +51,6 @@ function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, nav
     fetchManga();
   }, []);
 
-  
-  const handleAddToLibrary = (item) => {
-    if (!Array.isArray(libraryList)) {   // encountered some errors so had to test it out here p.s Im keeping this comment and the code as fallback
-      console.log('libraryList is not an array', libraryList);
-      return;
-    }
-
-    if (!libraryList.some(manga =>  manga.id === item.id )){ /* check duplicates in libraryList no duplicates then proceed */
-      setLibraryList([...libraryList,  item ]);} /* update libraryList and add the item(manga) to it */
-  }
-
   return (
     <View style={{ flex: 1, padding: 14, paddingBottom: 0 }}>
       <FlatList
@@ -93,17 +82,6 @@ function BrowseScreen({mangaList, setMangaList, libraryList, setLibraryList, nav
                 {item.title || item.slug || 'No title'}
               </Text>
             </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleAddToLibrary(item)} 
-              style={{ 
-                position:'absolute', 
-                top: 5, 
-                right: 17, 
-                backgroundColor: '#4CAF50', 
-                padding: 2, 
-                borderRadius: 4
-              }}>
-                <Text style={{color: '#fff'}}>Add to library</Text>
-              </TouchableOpacity>
           </View>
           )
         }}

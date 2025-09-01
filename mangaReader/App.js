@@ -1,5 +1,5 @@
 import {SQLiteProvider} from 'expo-sqlite';
-import  MyApp  from './MyApp';
+import MyApp from './MyApp';
 
 export default function App(){
     return(
