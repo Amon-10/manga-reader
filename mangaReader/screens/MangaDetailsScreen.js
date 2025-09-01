@@ -4,6 +4,7 @@ import { useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { getCoverUrl } from './getCover';
+import { useSQLiteContext } from 'expo-sqlite';
 
 export default function MangaDetailsScreen({libraryList, setLibraryList}){
   const route = useRoute();
@@ -63,15 +64,28 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
     fetchMangaDetails();
   }, []);
 
-  const handleAddToLibrary = (manga) => {
-    if (!Array.isArray(libraryList)) {  
-      console.log('libraryList is not an array', libraryList);
-      return;
-    }
+  const db = useSQLiteContext();
 
-    if (!libraryList.some(item =>  item.id === manga.id )){ 
-      setLibraryList([...libraryList,  manga ]);
-    } 
+  const handleAddToLibrary = async (manga) => {
+    try {
+      if (!Array.isArray(libraryList)) {  
+        console.log('libraryList is not an array', libraryList);
+        return;
+      }
+
+      if (libraryList.some(item =>  item.id === manga.id )){ 
+        /* setLibraryList([...libraryList,  manga ]); */
+        console.log('Manga already exists in the library');
+      }
+
+      await db.runAsync( 
+        `INSERT INTO library (mangaId, cover, title, slug) VALUES (?, ?, ?, ?)`,
+        []
+      ); 
+
+    } catch{
+
+    }
   }
 
   const handleRemove = (id) => {
