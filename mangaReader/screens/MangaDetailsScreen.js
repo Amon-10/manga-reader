@@ -88,7 +88,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
         /* setLibraryList([...libraryList,  manga ]); */
         await db.runAsync( 
           `INSERT INTO library (mangaId, cover, title, slug) VALUES (?, ?, ?, ?)`,
-          [manga.id, manga.md_covers?.[0]?.b2key, manga.title, manga.slug ]
+          [manga.id, `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key}`, manga.title, manga.slug ]
         ); 
 
         await logLibrary();
