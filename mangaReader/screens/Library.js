@@ -11,7 +11,7 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
     try{
       const allMangaInLibrary = await db.getAllAsync(`SELECT * FROM library`);
       setLibraryList(allMangaInLibrary);
-      console.log(JSON.stringify(allMangaInLibrary, null, 2));
+      console.log(JSON.stringify(libraryList, null, 2));
     } catch(error){
       console.error('Could not load library', error);
     }
