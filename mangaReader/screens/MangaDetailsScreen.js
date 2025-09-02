@@ -100,15 +100,6 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
     }
   }
 
-  const updateLibrary = async () => {
-    try{
-      const allMangaInLibrary = await db.getAllAsync(`SELECT * FROM library`);
-      setLibraryList(allMangaInLibrary);
-    }catch(error){
-      console.error('Could not load library', error);
-    }
-  }
-
   const handleRemove = async (id) => {
     try {
       await db.runAsync(
