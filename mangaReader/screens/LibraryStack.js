@@ -11,6 +11,7 @@ export default function LibraryStack({libraryList, setLibraryList}){
                     <LibraryScreen
                     {...props}
                     libraryList={libraryList}
+                    setLibraryList={setLibraryList}
                     />
                 )}                
             </Stack.Screen>
