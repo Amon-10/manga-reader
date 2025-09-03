@@ -67,14 +67,14 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
 
   const db = useSQLiteContext();
 
-  const logLibrary = async () => {
+  /* const logLibrary = async () => {
     try {
       const result = await db.getAllAsync("SELECT * FROM library");
       console.log(JSON.stringify(result, null, 2));
     } catch (error) {
       console.error("Error reading library:", error);
     }
-  };
+  }; */
 
 
   const handleAddToLibrary = async (manga) => {
@@ -84,12 +84,22 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
         return;
       }
 
-      if (!libraryList.some(item =>  item.id === manga.id )){ 
+      if (!libraryList.some(item =>  item.mangaId === manga.id )){ 
         /* setLibraryList([...libraryList,  manga ]); */
         await db.runAsync( 
           `INSERT INTO library (mangaId, cover, title, slug) VALUES (?, ?, ?, ?)`,
           [manga.id, `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key}`, manga.title, manga.slug ]
         ); 
+
+        setLibraryList(prev => [
+        ...prev,
+        {
+          mangaId: manga.id,
+          cover: `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key}`,
+          title: manga.title,
+          slug: manga.slug
+        }
+      ]);
 
         await logLibrary();
       }
@@ -106,14 +116,14 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
         `DELETE FROM library WHERE mangaId = ?`,
         [id]
       );
-      setLibraryList(prevList => prevList.filter(manga => manga.id !== id));
+      setLibraryList(prevList => prevList.filter(manga => manga.mangaId !== id));
     }catch (error) {
       console.error("Error removing manga", error);
     }
   };
 
   useEffect(() => {
-    const exists = libraryList.some(item => item.id === manga.id);
+    const exists = libraryList.some(item => item.mangaId === manga.id);
     setIsInLibrary(exists);
   }, [libraryList, manga.id]);
 
@@ -122,7 +132,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
       handleRemove(manga.id);
     }
     else {
-      handleAddToLibrary(manga);
+      handleAddToLibrary(manga.id);
     }
   };
 

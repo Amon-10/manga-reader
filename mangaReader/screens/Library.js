@@ -7,19 +7,23 @@ import { useSQLiteContext } from 'expo-sqlite';
 export default function LibraryScreen({libraryList, setLibraryList, navigation}) {
   const db = useSQLiteContext();
 
-  const showLibrary = async () => {
-    try{
-      const allMangaInLibrary = await db.getAllAsync(`SELECT * FROM library`);
-      setLibraryList(allMangaInLibrary);
-      console.log(JSON.stringify(libraryList, null, 2));
-    } catch(error){
-      console.error('Could not load library', error);
-    }
+  useEffect(() => {
+    const showLibrary = async () => {
+      try {
+        const allMangaInLibrary = await db.getAllAsync(`SELECT * FROM library`);
+        setLibraryList(allMangaInLibrary);
+      } catch (error) {
+        console.error('Error loading library', error);
+      }
   };
 
-  useEffect(() => {
-    showLibrary();
+  showLibrary();
   }, []);
+
+  useEffect(() => {
+    console.log("libraryList updated:", JSON.stringify(libraryList, null, 2));
+  }, [libraryList]);
+
 
   return (
     <View style={{ flex: 1, padding: 14 }}>
@@ -30,7 +34,7 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
       <FlatList 
         data={libraryList}
         numColumns={2}
-        keyExtractor={(item) => item.mangaId.toString()}
+        keyExtractor={(item) => item.mangaId}
         renderItem={({item}) => (
         <View style={{ position: 'relative',marginBottom: 10 }}>
           <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
