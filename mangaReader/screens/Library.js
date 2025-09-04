@@ -15,9 +15,9 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
       } catch (error) {
         console.error('Error loading library', error);
       }
-  };
+    };
 
-  showLibrary();
+    showLibrary();
   }, []);
 
   useEffect(() => {
