@@ -91,17 +91,14 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
           [manga.id, `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key}`, manga.title, manga.slug ]
         ); 
 
-        setLibraryList(prev => [
-        ...prev,
-        {
-          mangaId: manga.id,
-          cover: `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key}`,
-          title: manga.title,
-          slug: manga.slug
-        }
-      ]);
-
-        await logLibrary();
+        setLibraryList(prev => [...prev,
+          {
+            mangaId: manga.id,
+            cover: `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key}`,
+            title: manga.title,
+            slug: manga.slug
+          }
+        ]);
       }
 
     } catch (error){
