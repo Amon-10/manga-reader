@@ -77,14 +77,14 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
   }; */
 
 
-  const handleAddToLibrary = async (manga) => {
+  const handleAddToLibrary = async () => {
     try {
       if (!Array.isArray(libraryList)) {  
         console.log('libraryList is not an array', libraryList);
         return;
       }
 
-      if (!libraryList.some(item =>  item.mangaId === manga.id )){ 
+      if (!libraryList.some(item =>  item.mangaId == manga.id )){ 
         /* setLibraryList([...libraryList,  manga ]); */
         await db.runAsync( 
           `INSERT INTO library (mangaId, cover, title, slug) VALUES (?, ?, ?, ?)`,
@@ -132,7 +132,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
       handleRemove(manga.id);
     }
     else {
-      handleAddToLibrary(manga.id);
+      handleAddToLibrary(manga);
     }
   };
 
