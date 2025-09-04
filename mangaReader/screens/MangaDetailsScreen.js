@@ -116,14 +116,14 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
         `DELETE FROM library WHERE mangaId = ?`,
         [id]
       );
-      setLibraryList(prevList => prevList.filter(manga => manga.mangaId !== id));
+      setLibraryList(prevList => prevList.filter(manga => manga.mangaId != id));
     }catch (error) {
       console.error("Error removing manga", error);
     }
   };
 
   useEffect(() => {
-    const exists = libraryList.some(item => item.mangaId === manga.id);
+    const exists = libraryList.some(item => item.mangaId == manga.id);
     setIsInLibrary(exists);
   }, [libraryList, manga.id]);
 
