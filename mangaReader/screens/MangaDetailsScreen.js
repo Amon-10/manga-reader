@@ -138,7 +138,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
       <View style={{ flexDirection: "row", marginBottom: 20 }}>
         <View style={{alignItems: 'flex-start', paddingLeft: 10, paddingRight: 10}}>
           <Image
-            source={{uri: getCoverUrl(manga) || 'https://via.placeholder.com/150'}}
+            source={{uri: getCoverUrl(manga) || manga.cover}}
             style={{ width: 120, height:170, borderRadius: 7 }}
           />
         </View>
