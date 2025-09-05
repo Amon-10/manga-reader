@@ -50,7 +50,8 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
               backgroundColor: 'rgba(0,0,0,0.6)', 
               padding: 2, 
               borderRadius: 4, 
-              fontSize: 15 
+              fontSize: 15,
+              maxWidth: '85%' 
             }}>
               {item.title || item.slug || 'no title'}
             </Text>
