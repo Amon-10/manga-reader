@@ -144,7 +144,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
         </View>
         <View style={{ justifyContent: 'center', width: '60%' }}>
           <Text style={{fontSize: 23}}>{manga.title}</Text>
-          <Text style={{fontSize: 15}}>Author: {manga.id}</Text>
+          <Text style={{fontSize: 15}}>Author:</Text>
           <Text style={{fontSize: 15}}>Status:</Text>
           <Text style={{fontSize: 15}}>Comick</Text>
         </View>
