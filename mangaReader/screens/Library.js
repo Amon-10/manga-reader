@@ -37,7 +37,7 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
         keyExtractor={(item) => item.mangaId}
         renderItem={({item}) => (
         <View style={{ position: 'relative',marginBottom: 10 }}>
-          <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
+          <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: {...item, id: item.mangaId}})}}>
             <Image 
               source={{ uri: item.cover }}
               style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}

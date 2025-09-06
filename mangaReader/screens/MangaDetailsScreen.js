@@ -67,16 +67,6 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
 
   const db = useSQLiteContext();
 
-  /* const logLibrary = async () => {
-    try {
-      const result = await db.getAllAsync("SELECT * FROM library");
-      console.log(JSON.stringify(result, null, 2));
-    } catch (error) {
-      console.error("Error reading library:", error);
-    }
-  }; */
-
-
   const handleAddToLibrary = async () => {
     try {
       if (!Array.isArray(libraryList)) {  
@@ -91,14 +81,8 @@ export default function MangaDetailsScreen({libraryList, setLibraryList}){
           [manga.id, `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key}`, manga.title, manga.slug ]
         ); 
 
-        setLibraryList(prev => [...prev,
-          {
-            mangaId: manga.id,
-            cover: `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key}`,
-            title: manga.title,
-            slug: manga.slug
-          }
-        ]);
+        const updatedLibrary = await db.getAllAsync(`SELECT * FROM library`);
+        setLibraryList(updatedLibrary);
       }
 
     } catch (error){
