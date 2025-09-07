@@ -6,8 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import { getCoverUrl } from './getCover';
 import { useSQLiteContext } from 'expo-sqlite';
 
-export default function MangaDetailsScreen({libraryList, setLibraryList}){
-  const route = useRoute();
+export default function MangaDetailsScreen({libraryList, setLibraryList, route}){
+  
   const { manga } = route.params;
   const navigation = useNavigation();
 
