@@ -8,8 +8,7 @@ export default function App(){
             onInit={async (db) => {
                 await db.execAsync(`
                     CREATE TABLE IF NOT EXISTS library (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        mangaId TEXT UNIQUE,
+                        mangaId TEXT UNIQUE PRIMARY KEY,
                         cover TEXT NOT NULL,
                         title TEXT NOT NULL,
                         slug TEXT NOT NULL

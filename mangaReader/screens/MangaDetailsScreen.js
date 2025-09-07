@@ -77,7 +77,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
       if (!libraryList.some(item =>  item.mangaId == manga.id )){ 
         /* setLibraryList([...libraryList,  manga ]); */
         await db.runAsync( 
-          `INSERT INTO library (mangaId, cover, title, slug) VALUES (?, ?, ?, ?)`,
+          `INSERT OR IGNORE INTO library (mangaId, cover, title, slug) VALUES (?, ?, ?, ?)`,
           [manga.id, `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key}`, manga.title, manga.slug ]
         ); 
 
