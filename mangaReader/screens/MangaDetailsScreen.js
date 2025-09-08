@@ -82,9 +82,12 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
 
       if (!libraryList.some(item =>  item.mangaId == manga.id )){ 
         /* setLibraryList([...libraryList,  manga ]); */
+        const coverUrl = manga.cover?.startsWith("http")
+        ? manga.cover
+        : `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key || manga.cover}`
         await db.runAsync( 
           `INSERT OR IGNORE INTO library (mangaId, cover, title, slug, desc) VALUES (?, ?, ?, ?, ?)`,
-          [manga.id, `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key}`, manga.title, manga.slug, manga.desc ]
+          [manga.id, coverUrl, manga.title, manga.slug, manga.desc ]
         ); 
 
         const updatedLibrary = await db.getAllAsync(`SELECT * FROM library`);
