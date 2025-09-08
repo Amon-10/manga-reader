@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { getCoverUrl } from './getCover';
 import { useSQLiteContext } from 'expo-sqlite';
+import { Alert } from 'react-native';
 
 export default function MangaDetailsScreen({libraryList, setLibraryList, route}){
   
@@ -168,7 +169,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
             <TouchableOpacity onPress={() => {navigation.navigate('ChapterReader', {chapter: item})}}
               style={{ width: '100%', padding: 5, marginVertical: 2, backgroundColor: '#f2f2f2', left: 18 }}>
               <Text style={{fontSize: 16}}>chapter {item.chap}</Text>
-              <Text style={{fontSize: 12}}>date added: {item.created_at.slice(0,10)}</Text>
+              <Text style={{fontSize: 12}}>date added: {item.created_at ? item.created_at.slice(0,10) : "N/A"}</Text>
             </TouchableOpacity>
           )}
 
@@ -178,8 +179,8 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
 
           ListEmptyComponent={
             !refreshing ? (
-              <View style={{ alignItems: "center", marginTop: 20 }}>
-                <Text>No chapters available</Text>
+              <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }}>
+                <Text>No chapters available. Pull down to refresh.</Text>
               </View>
             ) : null
           }
