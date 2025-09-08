@@ -10,9 +10,11 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
   
   const { manga } = route.params;
   const navigation = useNavigation();
+  const db = useSQLiteContext();
 
   const [chapterList, setChapterList] = useState([]);
   const [isInLibrary, setIsInLibrary] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useLayoutEffect(() => {
     const parent = navigation.getParent();
@@ -27,45 +29,48 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
     };
   }, [navigation]);  // I got rid of bottom tab bar over here in mangadetails screen
 
+  const fetchMangaDetails = async () => {
+    try {
+      setRefreshing(true);
+      const res = await fetch(`https://api.comick.fun/comic/${manga.slug}/`);
+      const json = await res.json();
+
+      const hid = json?.comic?.hid;
+      if (hid) {
+        await fetchChapters(hid);
+      }
+
+    } catch(err) {
+      console.error('Error fetching manga details', err);
+      Alert.alert("Error", "Could not load manga details. Please try again.");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const fetchChapters = async (hid) => {
+    try {
+    const response = await fetch(`https://api.comick.fun/comic/${hid}/chapters?limit=2000&lang=en`); // remember chapter limit is 60 rn
+
+      if(!response.ok){
+        throw new Error('Could not fetch chapter resources');
+      }
+
+      const data = await response.json();
+      const chap = data?.chapters || [];
+      /* console.log(JSON.stringify(chap.slice(0,5), null, 2)); */ // test log
+
+      setChapterList(chap);
+
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', error.message || 'An error occurred while adding manga');
+    }
+  };
+  
   useEffect(() => {
-    const fetchMangaDetails = async () => {
-      try {
-        const res = await fetch(`https://api.comick.fun/comic/${manga.slug}/`);
-        const json = await res.json();
-
-        const hid = json?.comic?.hid;
-        if (hid) {
-          fetchChapters(hid);
-        }
-
-      } catch(err) {
-        console.error('Error fetching manga details', err);
-      }
-    };
-
-    const fetchChapters = async (hid) => {
-      try {
-      const response = await fetch(`https://api.comick.fun/comic/${hid}/chapters?limit=2000&lang=en`); // remember chapter limit is 60 rn
-
-        if(!response.ok){
-          throw new Error('Could not fetch chapter resources');
-        }
-
-        const data = await response.json();
-        const chap = data?.chapters || [];
-        /* console.log(JSON.stringify(chap.slice(0,5), null, 2)); */ // test log
-
-        setChapterList(chap);
-
-      } catch (error) {
-        console.error(error);
-        Alert.alert('Error', error.message || 'An error occurred while adding manga');
-      }
-    };
     fetchMangaDetails();
   }, []);
-
-  const db = useSQLiteContext();
 
   const handleAddToLibrary = async () => {
     try {
@@ -87,6 +92,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
 
     } catch (error){
       console.error(error);
+      Alert.alert("Error", "Could not add manga to library.");
 
     }
   }
@@ -100,6 +106,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
       setLibraryList(prevList => prevList.filter(manga => manga.mangaId != id));
     }catch (error) {
       console.error("Error removing manga", error);
+      Alert.alert("Error", "Could not remove manga from library.")
     }
   };
 
@@ -166,6 +173,15 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
           )}
 
           ListHeaderComponent={renderHeader}
+
+          refreshing={refreshing}
+          onRefresh={fetchMangaDetails}
+
+          ListEmptyComponent={() => (
+            <Text style={{ textAlign: 'center', marginTop: 50 }}>
+              No chapters available
+            </Text>
+          )}
         />
         
         <View style={{position: 'absolute', bottom: 30, right: 10, alignItems: 'center', elevation: 5, zIndex: 100}}>
