@@ -11,7 +11,8 @@ export default function App(){
                         mangaId TEXT UNIQUE PRIMARY KEY,
                         cover TEXT NOT NULL,
                         title TEXT NOT NULL,
-                        slug TEXT NOT NULL
+                        slug TEXT NOT NULL,
+                        desc TEXT
                     )
                 `);   
             }}
