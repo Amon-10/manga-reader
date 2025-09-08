@@ -173,15 +173,16 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
           )}
 
           ListHeaderComponent={renderHeader}
-
           refreshing={refreshing}
           onRefresh={fetchMangaDetails}
 
-          ListEmptyComponent={() => (
-            <Text style={{ textAlign: 'center', marginTop: 50 }}>
-              No chapters available
-            </Text>
-          )}
+          ListEmptyComponent={
+            !refreshing ? (
+              <View style={{ alignItems: "center", marginTop: 20 }}>
+                <Text>No chapters available</Text>
+              </View>
+            ) : null
+          }
         />
         
         <View style={{position: 'absolute', bottom: 30, right: 10, alignItems: 'center', elevation: 5, zIndex: 100}}>
