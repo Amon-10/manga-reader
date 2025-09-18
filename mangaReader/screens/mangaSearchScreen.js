@@ -29,7 +29,7 @@ export default function MangaSearchScreen({navigation, route}){
     if (query.length > 2) {
       const fetchResults = async () => {
         try {
-          const res = await fetch(`https://api.comick.fun/v1.0/search?q=${query}`);
+          const res = await fetch(`https://api.mangadex.org/manga?limit=10&title=${query}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc&includes%5B%5D=`);
           const data = await res.json();
           setResults(data);
         } catch (err) {
@@ -47,7 +47,7 @@ export default function MangaSearchScreen({navigation, route}){
       <FlatList
         data={results}
         numColumns={2}
-        keyExtractor={(item) => item.slug || item.id.toString()}
+        keyExtractor={(item) => item.data[0].id.toString()}
         renderItem={({ item }) => (
           <View style={{ position: 'relative', marginBottom: 10}}>
             <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
@@ -66,7 +66,7 @@ export default function MangaSearchScreen({navigation, route}){
                 fontSize: 15,
                 maxWidth: '85%' 
               }}>
-                {item.title || item.slug || 'No title'}
+                {item.data[0]?.attributes?.title?.en || item.data.id.toString() || 'No title'}
               </Text>
             </TouchableOpacity>
           </View>
