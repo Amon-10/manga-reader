@@ -6,6 +6,7 @@ export default function MangaSearchScreen({navigation, route}){
   
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [coverUrl, setCoverUrl] = useState(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -30,8 +31,8 @@ export default function MangaSearchScreen({navigation, route}){
       const fetchResults = async () => {
         try {
           const res = await fetch(`https://api.mangadex.org/manga?limit=10&title=${query}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc&includes%5B%5D=`);
-          const data = await res.json();
-          setResults(data);
+          const mangaData = await res.json();
+          setResults(mangaData.data);
         } catch (err) {
           console.error(err);
         }
@@ -42,17 +43,24 @@ export default function MangaSearchScreen({navigation, route}){
     }
   }, [query]);
 
+  useEffect(() => {
+    const fetchCover = async () => {
+      const url = await getCoverUrl(item);
+      setCoverUrl(url);
+    };
+    fetchCover();
+  }, [item]);
+
   return (
     <View style={{ flex: 1, padding: 14, paddingBottom: 0 }}>
       <FlatList
         data={results}
         numColumns={2}
-        keyExtractor={(item) => item.data[0].id.toString()}
         renderItem={({ item }) => (
           <View style={{ position: 'relative', marginBottom: 10}}>
             <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
               <Image 
-                source={{ uri: getCoverUrl(item) || 'https://via.placeholder.com/150' }}
+                source={{ uri: coverUrl || 'https://via.placeholder.com/150' }}
                 style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
               />
               <Text style={{ 
@@ -66,11 +74,12 @@ export default function MangaSearchScreen({navigation, route}){
                 fontSize: 15,
                 maxWidth: '85%' 
               }}>
-                {item.data[0]?.attributes?.title?.en || item.data.id.toString() || 'No title'}
+                {item.attributes?.title?.en || item.id || 'No title'}
               </Text>
             </TouchableOpacity>
           </View>
         )}
+        keyExtractor={(item) => item.id}
       />
     </View>
   );
