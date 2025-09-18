@@ -6,7 +6,7 @@ export default function MangaSearchScreen({navigation, route}){
   
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
-  const [coverUrl, setCoverUrl] = useState(null);
+  const [covers, setCovers] = useState({});
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -41,15 +41,22 @@ export default function MangaSearchScreen({navigation, route}){
     } else {
       setResults([]);
     }
-  }, [query]);
-
+  }, [query]); 
+  
   useEffect(() => {
-    const fetchCover = async () => {
-      const url = await getCoverUrl(item);
-      setCoverUrl(url);
-    };
-    fetchCover();
-  }, [item]);
+  const fetchCovers = async () => {
+    const newCovers = {};
+    for (const manga of results) {
+      const url = await getCoverUrl(manga);
+      if (url) newCovers[manga.id] = url;
+    }
+    setCovers(newCovers);
+  };
+
+  if (results.length > 0) {
+    fetchCovers();
+  }
+}, [results]);
 
   return (
     <View style={{ flex: 1, padding: 14, paddingBottom: 0 }}>
@@ -60,7 +67,7 @@ export default function MangaSearchScreen({navigation, route}){
           <View style={{ position: 'relative', marginBottom: 10}}>
             <TouchableOpacity onPress={() => { navigation.navigate('MangaDetails', {manga: item})}}>
               <Image 
-                source={{ uri: coverUrl || 'https://via.placeholder.com/150' }}
+                source={{ uri: covers[item.id] || 'https://via.placeholder.com/150' }}
                 style={{ width: 160, height:220, marginRight: 12, borderRadius: 7 }}
               />
               <Text style={{ 
