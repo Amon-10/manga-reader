@@ -6,7 +6,6 @@ export const getCoverUrl = async (manga) => {
       const mangaCoverJson = await mangaCoverRes.json();
       
       const coverFileName = mangaCoverJson?.data[0]?.attributes?.fileName;
-      console.log("file Name: ", coverFileName);
       
       return mangaID && coverFileName ? `https://uploads.mangadex.org/covers/${mangaID}/${coverFileName}` : null;
     } catch(error) {
