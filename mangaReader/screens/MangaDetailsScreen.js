@@ -1,21 +1,22 @@
 import React,{ useEffect, useLayoutEffect, useState } from 'react';
 import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
-import { useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { getCoverUrl } from './getCover';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Alert } from 'react-native';
 
-export default function MangaDetailsScreen({libraryList, setLibraryList, route}){
-  
+export default function MangaDetailsScreen({libraryList, setLibraryList, route}) {
+
   const { manga } = route.params;
   const navigation = useNavigation();
   const db = useSQLiteContext();
+  /* console.log(JSON.stringify(manga, null, 2)); */
 
   const [chapterList, setChapterList] = useState([]);
   const [isInLibrary, setIsInLibrary] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [coverUrl, setCoverUrl] = useState(null);
 
   useLayoutEffect(() => {
     const parent = navigation.getParent();
@@ -30,48 +31,34 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
     };
   }, [navigation]);  // I got rid of bottom tab bar over here in mangadetails screen
 
-  const fetchMangaDetails = async () => {
+  const fetchChapters = async () => {
     try {
       setRefreshing(true);
-      const res = await fetch(`https://api.comick.fun/comic/${manga.slug}/`);
-      const json = await res.json();
-
-      const hid = json?.comic?.hid;
-      if (hid) {
-        await fetchChapters(hid);
-      }
-
-    } catch(err) {
-      console.error('Error fetching manga details', err);
-      Alert.alert("Error", "Could not load manga details. Please try again.");
+      const response = await fetch(`https://api.mangadex.org/chapter?limit=100&manga=${manga.id}&translatedLanguage[]=en&order[chapter]=asc`); // remember chapter limit is 2000 rn
+      const data = await response.json();
+      const chap = data?.data || [];
+      /* console.log(JSON.stringify(chap.slice(0,5), null, 2)); */ // test log
+      setChapterList(chap);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', error.message || 'An error occurred while fetching chapter');
     } finally {
       setRefreshing(false);
     }
   };
 
-  const fetchChapters = async (hid) => {
-    try {
-    const response = await fetch(`https://api.comick.fun/comic/${hid}/chapters?limit=2000&lang=en`); // remember chapter limit is 60 rn
-
-      if(!response.ok){
-        throw new Error('Could not fetch chapter resources');
-      }
-
-      const data = await response.json();
-      const chap = data?.chapters || [];
-      /* console.log(JSON.stringify(chap.slice(0,5), null, 2)); */ // test log
-
-      setChapterList(chap);
-
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error', error.message || 'An error occurred while adding manga');
-    }
-  };
-  
   useEffect(() => {
-    fetchMangaDetails();
+    fetchChapters();
+    (async () => {
+      const url = await getCoverUrl(manga);
+      setCoverUrl(url);
+    })();
   }, []);
+
+  useEffect(() => {
+      const exists = libraryList.some(item => item.mangaId == manga.id);
+      setIsInLibrary(exists);
+    }, [libraryList, manga.id]);
 
   const handleAddToLibrary = async () => {
     try {
@@ -82,12 +69,16 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
 
       if (!libraryList.some(item =>  item.mangaId == manga.id )){ 
         /* setLibraryList([...libraryList,  manga ]); */
-        const coverUrl = manga.cover?.startsWith("http")
-        ? manga.cover
-        : `https://meo.comick.pictures/${manga.md_covers?.[0]?.b2key || manga.cover}`
+        const finalCover = coverUrl || null;
+
         await db.runAsync( 
-          `INSERT OR IGNORE INTO library (mangaId, cover, title, slug, desc) VALUES (?, ?, ?, ?, ?)`,
-          [manga.id, coverUrl, manga.title, manga.slug, manga.desc ]
+          `INSERT OR IGNORE INTO library (mangaId, cover, title, desc) VALUES (?, ?, ?, ?)`,
+          [
+            manga.id, 
+            finalCover, 
+            manga.attributes.name.en || 'Untitled',
+            manga.attributes.deascription.en || 'No description'
+          ]
         ); 
 
         const updatedLibrary = await db.getAllAsync(`SELECT * FROM library`);
@@ -99,25 +90,19 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
       Alert.alert("Error", "Could not add manga to library.");
 
     }
-  }
+  };
 
   const handleRemove = async (id) => {
     try {
       await db.runAsync(
         `DELETE FROM library WHERE mangaId = ?`,
-        [id]
-      );
+      [id]);
       setLibraryList(prevList => prevList.filter(manga => manga.mangaId != id));
     }catch (error) {
       console.error("Error removing manga", error);
       Alert.alert("Error", "Could not remove manga from library.")
     }
   };
-
-  useEffect(() => {
-    const exists = libraryList.some(item => item.mangaId == manga.id);
-    setIsInLibrary(exists);
-  }, [libraryList, manga.id]);
 
   const toggleLibrary = () => {
     if (isInLibrary){
@@ -133,15 +118,15 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
       <View style={{ flexDirection: "row", marginBottom: 20 }}>
         <View style={{alignItems: 'flex-start', paddingLeft: 10, paddingRight: 10}}>
           <Image
-            source={{uri: getCoverUrl(manga) || manga.cover}}
+            source={{ uri: coverUrl || null }}
             style={{ width: 120, height:170, borderRadius: 7 }}
           />
         </View>
         <View style={{ justifyContent: 'center', width: '60%' }}>
-          <Text style={{fontSize: 23}}>{manga.title}</Text>
+          <Text style={{fontSize: 23}}>{manga?.attributes?.title?.en}</Text>
           <Text style={{fontSize: 15}}>Author:</Text>
-          <Text style={{fontSize: 15}}>Status:</Text>
-          <Text style={{fontSize: 15}}>Comick</Text>
+          <Text style={{fontSize: 15}}>Status: {manga.attributes.status}</Text>
+          <Text style={{fontSize: 15}}>MangaDex</Text>
         </View>
       </View>
 
@@ -158,53 +143,55 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
         </TouchableOpacity>
       </View>
 
-      <Text style={{marginTop: 25}}>{manga.desc}</Text>
+      <Text style={{marginTop: 25}}>{manga?.attributes?.description?.en}</Text>
           
     </View>
   );
 
-    return (
-      <View>
-        <FlatList
-          data={chapterList}
-          keyExtractor={(item) => item.hid}
-          renderItem={({item}) => (
-            <TouchableOpacity onPress={() => {navigation.navigate('ChapterReader', {chapter: item})}}
-              style={{ width: '100%', padding: 5, marginVertical: 2, backgroundColor: '#f2f2f2', left: 18 }}>
-              <Text style={{fontSize: 16}}>chapter {item.chap}</Text>
-              <Text style={{fontSize: 12}}>date added: {item.created_at ? item.created_at.slice(0,10) : "N/A"}</Text>
-            </TouchableOpacity>
-          )}
-
-          ListHeaderComponent={renderHeader}
-          refreshing={refreshing}
-          onRefresh={fetchMangaDetails}
-
-          ListEmptyComponent={
-            !refreshing ? (
-              <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }}>
-                <Text>No chapters available. Pull down to refresh.</Text>
-              </View>
-            ) : null
-          }
-        />
-        
-        <View style={{position: 'absolute', bottom: 30, right: 10, alignItems: 'center', elevation: 5, zIndex: 100}}>
-          <TouchableOpacity onPress={() => alert('Read now button')}
-          style={{ 
-            flexDirection: 'row', 
-            alignItems:'center', 
-            backgroundColor:'red', 
-            padding: 15, 
-            borderRadius: 7, 
-          }} >
-
-            <Ionicons name='caret-forward-outline' color='white' size= {25}/>
-
-            <Text style={{color: 'white', fontSize: 12, marginLeft: 10}}>Read</Text>
-
+  return (
+    <View>
+      <FlatList
+        data={chapterList}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => {navigation.navigate('ChapterReader', {chapter: item})}}
+            style={{ width: '100%', padding: 5, marginVertical: 2, backgroundColor: '#f2f2f2', left: 18 }}>
+            <Text style={{fontSize: 16}}>chapter {item.attributes.chapter}</Text>
+            <Text style={{fontSize: 12}}>date added: {item.attributes.createdAt ? item.attributes.createdAt.slice(0,10) : "N/A"}</Text>
           </TouchableOpacity>
-        </View>
+        )}
+
+        ListHeaderComponent={renderHeader}
+        refreshing={refreshing}
+        onRefresh={fetchChapters}
+
+        ListEmptyComponent={
+          !refreshing ? (
+            <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }}>
+              <Text>No chapters available. Pull down to refresh.</Text>
+            </View>
+          ) : null
+        }
+      />
+      
+      <View style={{position: 'absolute', bottom: 30, right: 10, alignItems: 'center', elevation: 5, zIndex: 100}}>
+        <TouchableOpacity onPress={() => alert('Read now button')}
+        style={{ 
+          flexDirection: 'row', 
+          alignItems:'center', 
+          backgroundColor:'red', 
+          padding: 15, 
+          borderRadius: 7, 
+        }} >
+
+          <Ionicons name='caret-forward-outline' color='white' size= {25}/>
+
+          <Text style={{color: 'white', fontSize: 12, marginLeft: 10}}>Read</Text>
+
+        </TouchableOpacity>
       </View>
-    );
+    </View>
+  );
+  
+
 }
