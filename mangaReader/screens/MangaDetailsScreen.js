@@ -61,6 +61,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
   };
 
   useEffect(() => {
+    if (!manga?.id) return;
     fetchChapters(manga.id);
   }, [manga.id]);
 
