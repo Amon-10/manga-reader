@@ -1,10 +1,9 @@
 import React,{ useEffect, useLayoutEffect, useState } from 'react';
-import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
+import {View, Text, FlatList, Image, TouchableOpacity, Alert} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { getCoverUrl } from './getCover';
 import { useSQLiteContext } from 'expo-sqlite';
-import { Alert } from 'react-native';
 
 export default function MangaDetailsScreen({libraryList, setLibraryList, route}) {
 
@@ -31,24 +30,40 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
     };
   }, [navigation]);  // I got rid of bottom tab bar over here in mangadetails screen
 
-  const fetchChapters = async () => {
+  const fetchChapters = async (mangaId) => {
+    let allChapters = [];
+    let offset = 0;
+    const limit = 100;
+    let total = 0;
+
     try {
       setRefreshing(true);
-      const response = await fetch(`https://api.mangadex.org/chapter?limit=100&manga=${manga.id}&translatedLanguage[]=en&order[chapter]=asc`); // remember chapter limit is 2000 rn
-      const data = await response.json();
-      const chap = data?.data || [];
-      /* console.log(JSON.stringify(chap.slice(0,5), null, 2)); */ // test log
-      setChapterList(chap);
+      do {
+        const res = await fetch(
+          `https://api.mangadex.org/chapter?limit=${limit}&offset=${offset}&manga=${mangaId}&translatedLanguage[]=en&order[chapter]=asc`
+        );
+        const data = await res.json();
+
+        allChapters = [...allChapters, ...data.data];
+        total = data.total || 0;
+        offset += limit;
+
+      } while (offset < total);
+
+      setChapterList(allChapters);
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', error.message || 'An error occurred while fetching chapter');
+      Alert.alert('Error', 'Could not fetch chapters.');
     } finally {
       setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetchChapters();
+    fetchChapters(manga.id);
+  }, [manga.id]);
+
+  useEffect(() => {
     (async () => {
       const url = await getCoverUrl(manga);
       setCoverUrl(url);
@@ -163,7 +178,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
 
         ListHeaderComponent={renderHeader}
         refreshing={refreshing}
-        onRefresh={fetchChapters}
+        onRefresh={fetchChapters(manga.id)}
 
         ListEmptyComponent={
           !refreshing ? (
