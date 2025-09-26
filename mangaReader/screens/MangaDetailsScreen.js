@@ -31,6 +31,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
   }, [navigation]);  // I got rid of bottom tab bar over here in mangadetails screen
 
   const fetchChapters = async (mangaId) => {
+    if (!mangaId) return;
     let allChapters = [];
     let offset = 0;
     const limit = 100;
@@ -44,7 +45,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
         );
         const data = await res.json();
 
-        allChapters = [...allChapters, ...data.data];
+        allChapters = [...allChapters, ...(data.data || [])];
         total = data.total || 0;
         offset += limit;
 
@@ -52,7 +53,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
 
       setChapterList(allChapters);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching chapters', error);
       Alert.alert('Error', 'Could not fetch chapters.');
     } finally {
       setRefreshing(false);
