@@ -178,7 +178,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
 
         ListHeaderComponent={renderHeader}
         refreshing={refreshing}
-        onRefresh={fetchChapters(manga.id)}
+        onRefresh={() => fetchChapters(manga.id)}
 
         ListEmptyComponent={
           !refreshing ? (

@@ -8,14 +8,23 @@ export default function ChapterReaderScreen({route}){
     const [pages, setPages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    /* console.log(JSON.stringify(chapter, null, 2)); */
 
     useEffect(() => {
         const fetchPages = async () => {
             try {
-                const res = await fetch(`https://api.comick.fun/chapter/${chapter.hid}/get_images`);
+                const res = await fetch(`https://api.mangadex.org/at-home/server/${chapter.id}`);
                 const data = await res.json();
                 /* console.log('testing chapter info: ', data); */
-                setPages(data);
+                if (!data || !data.baseUrl || !data.chapter) {
+                    throw new Error("Invalid chapter data");
+                }
+
+                const imageUrls = data.chapter.data.map(
+                    (file) => `${data.baseUrl}/data/${data.chapter.hash}/${file}`
+                );
+
+                setPages(imageUrls);
                 
             } catch(err){
                 console.error('Error fetching chapter images', err);
@@ -26,8 +35,8 @@ export default function ChapterReaderScreen({route}){
         };
 
         fetchPages();
-    }, [chapter.hid]); // the stuff in the brackets make it so that this runs 
-    // once when the component first mounts and then again when chapter.hid changes
+    }, [chapter.id]); // the stuff in the brackets make it so that this runs 
+    // once when the component first mounts and then again when chapter.id changes
 
     if (loading) {
         return (
@@ -49,13 +58,13 @@ export default function ChapterReaderScreen({route}){
     return (
         <FlatList
             data={pages}
-            keyExtractor={(item, index) => item.b2key + index}
+            keyExtractor={(item, index) => `${chapter.id}-${index}`}
             initialNumToRender={6}
             maxToRenderPerBatch={10}
             windowSize={10}
             renderItem={({ item, index }) =>(
                 <Image
-                    source={{ uri: `https://meo.comick.pictures/${item.b2key}`}}
+                    source={{ uri: item}}
                     resizeMode= "contain"
                     style={{ width: screenWidth, height: screenWidth * 1.4, marginBottom: 8 }}
                     onError={() => console.warn(`Image ${index + 1} failed to load`)}
