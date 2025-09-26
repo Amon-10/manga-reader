@@ -66,11 +66,18 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
   }, [manga.id]);
 
   useEffect(() => {
+    let mounted = true;
     (async () => {
-      const url = await getCoverUrl(manga);
-      setCoverUrl(url);
+      try {
+        if (!manga?.id) return;
+        const url = await getCoverUrl(manga);
+        if (mounted) setCoverUrl(url);
+      } catch (err) {
+        console.error('Error fetching cover', err);
+      }
     })();
-  }, []);
+    return () => { mounted = false; };
+  }, [manga?.id]);
 
   useEffect(() => {
       const exists = libraryList.some(item => item.mangaId == manga.id);
@@ -94,12 +101,13 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
             manga.id, 
             finalCover, 
             manga.attributes.name.en || 'Untitled',
-            manga.attributes.deascription.en || 'No description'
+            manga.attributes.description.en || 'No description'
           ]
         ); 
 
         const updatedLibrary = await db.getAllAsync(`SELECT * FROM library`);
         setLibraryList(updatedLibrary);
+        setIsInLibrary(true);
       }
 
     } catch (error){
@@ -115,6 +123,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
         `DELETE FROM library WHERE mangaId = ?`,
       [id]);
       setLibraryList(prevList => prevList.filter(manga => manga.mangaId != id));
+      setIsInLibrary(false);
     }catch (error) {
       console.error("Error removing manga", error);
       Alert.alert("Error", "Could not remove manga from library.")
@@ -126,7 +135,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
       handleRemove(manga.id);
     }
     else {
-      handleAddToLibrary(manga);
+      handleAddToLibrary();
     }
   };
 
