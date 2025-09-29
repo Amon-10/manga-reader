@@ -95,7 +95,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
         /* setLibraryList([...libraryList,  manga ]); */
         const finalCover = coverUrl || null;
 
-        const title = manga?.attributes?.name?.en
+        const title = manga?.attributes?.title?.en
           || Object.values(manga?.attributes?.title || {})[0]
           || 'Untitled';
         
@@ -157,7 +157,11 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
           />
         </View>
         <View style={{ justifyContent: 'center', width: '60%' }}>
-          <Text style={{fontSize: 23}}>{manga?.attributes?.title?.en}</Text>
+          <Text style={{fontSize: 23}}>
+            {manga?.attributes?.title?.en
+            || Object.values(manga?.attributes?.title || {})[0]
+            || 'Untitled'}
+          </Text>
           <Text style={{fontSize: 15}}>Author:</Text>
           <Text style={{fontSize: 15}}>Status: {manga?.attributes?.status}</Text>
           <Text style={{fontSize: 15}}>MangaDex</Text>
