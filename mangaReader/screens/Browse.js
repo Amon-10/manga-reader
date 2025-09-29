@@ -13,7 +13,7 @@ function BrowseScreen({ mangaList, setMangaList, navigation }) {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://api.mangadex.org/manga?limit=${limit}&offset=${offset}&includes[]=cover_art&order[relevance]=desc`
+        `https://api.mangadex.org/manga?limit=${limit}&offset=${offset}&includes[]=cover_art&order[followedCount]=desc`
       );
 
       if (!response.ok) {
