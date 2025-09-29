@@ -187,7 +187,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
   );
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <FlatList
         data={chapterList}
         keyExtractor={(item) => item.id}
