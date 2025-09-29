@@ -53,7 +53,7 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
               fontSize: 15,
               maxWidth: '85%' 
             }}>
-              {item.title || item.slug || 'no title'}
+              {item.title || 'no title'}
             </Text>
           </TouchableOpacity>
         </View>)}

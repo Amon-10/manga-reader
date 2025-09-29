@@ -95,13 +95,21 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
         /* setLibraryList([...libraryList,  manga ]); */
         const finalCover = coverUrl || null;
 
+        const title = manga?.attributes?.name?.en
+          || Object.values(manga?.attributes?.title || {})[0]
+          || 'Untitled';
+        
+        const description = manga?.attributes?.description?.en
+          || Object.values(manga?.attributes?.description || {})[0]
+          || 'No description';
+
         await db.runAsync( 
           `INSERT OR IGNORE INTO library (mangaId, cover, title, desc) VALUES (?, ?, ?, ?)`,
           [
             manga.id, 
             finalCover, 
-            manga.attributes.name.en || 'Untitled',
-            manga.attributes.description.en || 'No description'
+            title,
+            description
           ]
         ); 
 
