@@ -210,6 +210,7 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
             </View>
           ) : null
         }
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
       
       <View style={{position: 'absolute', bottom: 30, right: 10, alignItems: 'center', elevation: 5, zIndex: 100}}>
