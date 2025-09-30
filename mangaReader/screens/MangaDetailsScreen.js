@@ -1,11 +1,31 @@
-import React,{ useEffect, useLayoutEffect, useState } from 'react';
-import {View, Text, FlatList, Image, TouchableOpacity, Alert} from 'react-native';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { View, Text, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { getCoverUrl } from './getCover';
 import { useSQLiteContext } from 'expo-sqlite';
 
-export default function MangaDetailsScreen({libraryList, setLibraryList, route}) {
+// helper: unique & sort by chapter number (attempt numeric)
+const uniqAndSort = (arr) => {
+  const map = new Map();
+  for (const item of arr) {
+    if (!item || !item.id) continue;
+    map.set(item.id, item);
+  }
+  const list = Array.from(map.values());
+  list.sort((a, b) => {
+    const na = parseFloat(a.number) || 0;
+    const nb = parseFloat(b.number) || 0;
+    if (na === nb) {
+      // fallback to createdAt if same chapter or non-numeric
+      return (a.createdAt || '').localeCompare(b.createdAt || '');
+    }
+    return na - nb;
+  });
+  return list;
+};
+
+export default function MangaDetailsScreen({ libraryList, setLibraryList, route }) {
   const { manga } = route.params;
   const navigation = useNavigation();
   const db = useSQLiteContext();
@@ -15,81 +35,14 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
   const [refreshing, setRefreshing] = useState(false);
   const [coverUrl, setCoverUrl] = useState(null);
 
-  // Hide bottom tab bar
+  // hide tab bar
   useLayoutEffect(() => {
     const parent = navigation.getParent();
     parent?.setOptions({ tabBarStyle: { display: 'none' } });
     return () => parent?.setOptions({ tabBarStyle: { display: 'flex' } });
   }, [navigation]);
 
-  // Fetch chapters from API (used only on pull-to-refresh)
-  const fetchChaptersFromApi = async (mangaId) => {
-    if (!mangaId) return [];
-    try {
-      setRefreshing(true);
-      let allChapters = [];
-      let offset = 0;
-      const limit = 100;
-      let total = 0;
-
-      do {
-        const res = await fetch(
-          `https://api.mangadex.org/chapter?limit=${limit}&offset=${offset}&manga=${mangaId}&translatedLanguage[]=en&order[chapter]=asc`
-        );
-        const data = await res.json();
-
-        const normalized = (data.data || []).map(chap => ({
-          id: chap.id,
-          number: chap.attributes?.chapter,
-          createdAt: chap.attributes?.createdAt?.slice(0, 10) || null,
-        }));
-
-        allChapters = [...allChapters, ...normalized];
-        total = data.total || 0;
-        offset += limit;
-      } while (offset < total);
-
-      // Save all chapters to DB
-      for (const chap of allChapters) {
-        await db.runAsync(
-          `INSERT OR REPLACE INTO chapters (chapterId, mangaId, createdAt, chapterNumber) VALUES (?, ?, ?, ?)`,
-          [chap.id, mangaId, chap.createdAt, chap.number]
-        );
-      }
-
-      setChapterList(allChapters);
-      return allChapters;
-    } catch (error) {
-      console.error('Error fetching chapters', error);
-      Alert.alert('Error', 'Could not fetch chapters.');
-      return [];
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  // Load chapters from DB on initial render
-  const loadChaptersFromDb = async (mangaId) => {
-    if (!mangaId) return;
-
-    const localChapters = await db.getAllAsync(
-      `SELECT chapterId as id, chapterNumber as number, createdAt FROM chapters WHERE mangaId = ? ORDER BY CAST(chapterNumber AS FLOAT) ASC`,
-      [mangaId]
-    );
-
-    setChapterList(localChapters);
-
-    // If not in library, fetch from API for display
-    if (!libraryList.some(item => item.mangaId === mangaId)) {
-      await fetchChaptersFromApi(mangaId);
-    }
-  };
-
-  useEffect(() => {
-    if (manga?.id) loadChaptersFromDb(manga.id);
-  }, [manga?.id]);
-
-  // Cover image
+  // load cover (no changes)
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -104,13 +57,116 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
     return () => { mounted = false; };
   }, [manga?.id]);
 
-  // Sync library status
+  // update isInLibrary flag when parent libraryList changes (does NOT trigger chapter reload)
   useEffect(() => {
-    const exists = libraryList.some(item => item.mangaId === manga.id);
-    setIsInLibrary(exists);
-  }, [libraryList, manga.id]);
+    const exists = Array.isArray(libraryList) && libraryList.some(item => item.mangaId == manga.id);
+    setIsInLibrary(!!exists);
+  }, [libraryList, manga?.id]);
 
-  // Add to Library (does NOT update chapterList)
+  // --- API fetch helper (returns normalized array)
+  const fetchChaptersFromApi = async (mangaId) => {
+    if (!mangaId) return [];
+    try {
+      let all = [];
+      let offset = 0;
+      const limit = 100;
+      let total = 0;
+
+      do {
+        const res = await fetch(
+          `https://api.mangadex.org/chapter?limit=${limit}&offset=${offset}&manga=${mangaId}&translatedLanguage[]=en&order[chapter]=asc`
+        );
+        if (!res.ok) throw new Error('API failed');
+        const json = await res.json();
+        const normalized = (json.data || []).map(ch => ({
+          id: ch.id,
+          number: ch.attributes?.chapter,
+          createdAt: ch.attributes?.createdAt?.slice(0, 10) || null,
+        }));
+        all = [...all, ...normalized];
+        total = json.total || 0;
+        offset += limit;
+      } while (offset < total);
+
+      return uniqAndSort(all);
+    } catch (err) {
+      console.error('Error fetching from API', err);
+      return [];
+    }
+  };
+
+  // --- initial load ONLY (runs on mount / when manga.id changes)
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      if (!manga?.id) return;
+
+      try {
+        setRefreshing(true);
+
+        // check local library DB entry directly
+        const libraryRows = await db.getAllAsync(`SELECT 1 FROM library WHERE mangaId = ?`, [manga.id]);
+        const saved = (libraryRows && libraryRows.length > 0);
+
+        // if saved, try to load cached chapters from DB first
+        if (saved) {
+          const local = await db.getAllAsync(
+            `SELECT chapterId as id, chapterNumber as number, createdAt FROM chapters WHERE mangaId = ? ORDER BY CAST(chapterNumber AS FLOAT) ASC`,
+            [manga.id]
+          );
+          if (mounted && local?.length > 0) {
+            setChapterList(uniqAndSort(local));
+            setRefreshing(false);
+            return; // show cached and STOP (we don't force an API fetch on add)
+          }
+          // if saved but no cached chapters, fallthrough to API fetch (optional)
+        }
+
+        // not saved OR no cached chapters -> fetch from API and display (do NOT save unless caller chooses to)
+        const apiChaps = await fetchChaptersFromApi(manga.id);
+        if (mounted) setChapterList(apiChaps);
+      } catch (err) {
+        console.error('Initial load failed', err);
+      } finally {
+        if (mounted) setRefreshing(false);
+      }
+    })();
+
+    return () => { mounted = false; };
+  }, [manga?.id]); // only on manga.id changes — no isInLibrary or libraryList deps
+
+  // --- pull-to-refresh handler ---
+  const onRefresh = async () => {
+    if (!manga?.id) return;
+    setRefreshing(true);
+    try {
+      const apiChaps = await fetchChaptersFromApi(manga.id);
+
+      // update UI with API result
+      setChapterList(apiChaps);
+
+      // if manga is saved in library, persist chapters to DB
+      const libraryRows = await db.getAllAsync(`SELECT 1 FROM library WHERE mangaId = ?`, [manga.id]);
+      const saved = libraryRows && libraryRows.length > 0;
+      if (saved) {
+        // replace stored chapters for this manga
+        await db.runAsync(`DELETE FROM chapters WHERE mangaId = ?`, [manga.id]);
+        for (const ch of apiChaps) {
+          await db.runAsync(
+            `INSERT OR REPLACE INTO chapters (chapterId, mangaId, createdAt, chapterNumber) VALUES (?, ?, ?, ?)`,
+            [ch.id, manga.id, ch.createdAt, ch.number]
+          );
+        }
+      }
+    } catch (err) {
+      console.error('Refresh failed', err);
+      Alert.alert('Error', 'Could not refresh chapters.');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // --- Add to library: immediate UI update, background-only chapter caching (no spinner, no setChapterList) ---
   const handleAddToLibrary = async () => {
     try {
       const finalCover = coverUrl || null;
@@ -121,32 +177,50 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
         || Object.values(manga?.attributes?.description || {})[0]
         || 'No description';
 
+      // 1) insert library row immediately
       await db.runAsync(
         `INSERT OR IGNORE INTO library (mangaId, cover, title, desc) VALUES (?, ?, ?, ?)`,
         [manga.id, finalCover, title, description]
       );
 
-      // Save chapters to DB but DO NOT update chapterList
-      await fetchChaptersFromApi(manga.id);
-
+      // 2) update parent library list and UI immediately
       const updatedLibrary = await db.getAllAsync(`SELECT * FROM library`);
       setLibraryList(updatedLibrary);
       setIsInLibrary(true);
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Could not add manga to library.");
+
+      // 3) background: fetch chapters and save them to DB (DO NOT setChapterList here)
+      (async () => {
+        try {
+          const apiChaps = await fetchChaptersFromApi(manga.id);
+          if (apiChaps.length > 0) {
+            await db.runAsync(`DELETE FROM chapters WHERE mangaId = ?`, [manga.id]);
+            for (const ch of apiChaps) {
+              await db.runAsync(
+                `INSERT OR REPLACE INTO chapters (chapterId, mangaId, createdAt, chapterNumber) VALUES (?, ?, ?, ?)`,
+                [ch.id, manga.id, ch.createdAt, ch.number]
+              );
+            }
+          }
+        } catch (bgErr) {
+          console.error('Background save failed', bgErr);
+        }
+      })();
+    } catch (err) {
+      console.error('Add to library failed', err);
+      Alert.alert('Error', 'Could not add manga to library.');
     }
   };
 
+  // --- Remove from library (remove chapters too) ---
   const handleRemove = async (id) => {
     try {
       await db.runAsync(`DELETE FROM library WHERE mangaId = ?`, [id]);
       await db.runAsync(`DELETE FROM chapters WHERE mangaId = ?`, [id]);
-      setLibraryList(prev => prev.filter(manga => manga.mangaId !== id));
+      setLibraryList(prev => prev.filter(m => m.mangaId != id));
       setIsInLibrary(false);
-    } catch (error) {
-      console.error("Error removing manga", error);
-      Alert.alert("Error", "Could not remove manga from library.");
+    } catch (err) {
+      console.error('Remove failed', err);
+      Alert.alert('Error', 'Could not remove manga from library.');
     }
   };
 
@@ -155,44 +229,32 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
     else handleAddToLibrary();
   };
 
-  // Header
   const renderHeader = () => (
-    <View style={{ flex: 1, justifyContent: 'flex-start', marginTop: 20}}>
-      <View style={{ flexDirection: "row", marginBottom: 20 }}>
-        <View style={{alignItems: 'flex-start', paddingLeft: 10, paddingRight: 10}}>
-          <Image
-            source={{ uri: coverUrl || null }}
-            style={{ width: 120, height:170, borderRadius: 7 }}
-          />
+    <View style={{ flex: 1, justifyContent: 'flex-start', marginTop: 20 }}>
+      <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+        <View style={{ alignItems: 'flex-start', paddingLeft: 10, paddingRight: 10 }}>
+          <Image source={{ uri: coverUrl || null }} style={{ width: 120, height: 170, borderRadius: 7 }} />
         </View>
         <View style={{ justifyContent: 'center', width: '60%' }}>
-          <Text style={{fontSize: 23}}>
-            {manga?.attributes?.title?.en
-            || Object.values(manga?.attributes?.title || {})[0]
-            || 'Untitled'}
+          <Text style={{ fontSize: 23 }}>
+            {manga?.attributes?.title?.en || Object.values(manga?.attributes?.title || {})[0] || 'Untitled'}
           </Text>
-          <Text style={{fontSize: 15}}>Status: {manga?.attributes?.status}</Text>
-          <Text style={{fontSize: 15}}>MangaDex</Text>
+          <Text style={{ fontSize: 15 }}>Status: {manga?.attributes?.status}</Text>
+          <Text style={{ fontSize: 15 }}>MangaDex</Text>
         </View>
       </View>
 
-      <View style={{ alignItems: 'center'}}>
+      <View style={{ alignItems: 'center' }}>
         <TouchableOpacity onPress={toggleLibrary}>
-          <View style={{alignItems: 'center'}}>
-            <Ionicons 
-              name={isInLibrary? 'heart' : 'heart-outline'} 
-              size={25} 
-              color={isInLibrary? 'red' : 'black'}
-            />
+          <View style={{ alignItems: 'center' }}>
+            <Ionicons name={isInLibrary ? 'heart' : 'heart-outline'} size={25} color={isInLibrary ? 'red' : 'black'} />
           </View>
-          <Text style={{fontSize: 12}}>{isInLibrary? 'Remove from library' : 'Add to library'}</Text>
+          <Text style={{ fontSize: 12 }}>{isInLibrary ? 'Remove from library' : 'Add to library'}</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={{marginTop: 25}}>
-        {manga?.attributes?.description?.en
-        || Object.values(manga?.attributes?.description || {})[0]
-        || 'No description'}
+      <Text style={{ marginTop: 25 }}>
+        {manga?.attributes?.description?.en || Object.values(manga?.attributes?.description || {})[0] || 'No description'}
       </Text>
     </View>
   );
@@ -201,21 +263,22 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
     <View style={{ flex: 1 }}>
       <FlatList
         data={chapterList}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
-          <TouchableOpacity 
-            onPress={() => navigation.navigate('ChapterReader', {chapter: item})}
-            style={{ width: '100%', padding: 5, marginVertical: 2, backgroundColor: '#f2f2f2', left: 18 }}>
-            <Text style={{fontSize: 16}}>Chapter {item.number}</Text>
-            <Text style={{fontSize: 12}}>date added: {item.createdAt || "N/A"}</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ChapterReader', { chapter: item })}
+            style={{ width: '100%', padding: 5, marginVertical: 2, backgroundColor: '#f2f2f2', left: 18 }}
+          >
+            <Text style={{ fontSize: 16 }}>Chapter {item.number}</Text>
+            <Text style={{ fontSize: 12 }}>date added: {item.createdAt || 'N/A'}</Text>
           </TouchableOpacity>
         )}
         ListHeaderComponent={renderHeader}
         refreshing={refreshing}
-        onRefresh={() => fetchChaptersFromApi(manga.id)}
+        onRefresh={onRefresh}
         ListEmptyComponent={
           !refreshing ? (
-            <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }}>
+            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
               <Text>No chapters available. Pull down to refresh.</Text>
             </View>
           ) : null
@@ -223,12 +286,10 @@ export default function MangaDetailsScreen({libraryList, setLibraryList, route})
         contentContainerStyle={{ paddingBottom: 120 }}
       />
 
-      <View style={{position: 'absolute', bottom: 30, right: 10, alignItems: 'center', elevation: 5, zIndex: 100}}>
-        <TouchableOpacity 
-          onPress={() => alert('Read now button')}
-          style={{ flexDirection: 'row', alignItems:'center', backgroundColor:'red', padding: 15, borderRadius: 7 }} >
-          <Ionicons name='caret-forward-outline' color='white' size= {25}/>
-          <Text style={{color: 'white', fontSize: 12, marginLeft: 10}}>Read</Text>
+      <View style={{ position: 'absolute', bottom: 30, right: 10, alignItems: 'center', elevation: 5, zIndex: 100 }}>
+        <TouchableOpacity onPress={() => alert('Read now button')} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'red', padding: 15, borderRadius: 7 }}>
+          <Ionicons name='caret-forward-outline' color='white' size={25} />
+          <Text style={{ color: 'white', fontSize: 12, marginLeft: 10 }}>Read</Text>
         </TouchableOpacity>
       </View>
     </View>

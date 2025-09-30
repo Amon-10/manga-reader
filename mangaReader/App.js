@@ -15,6 +15,7 @@ export default function App(){
                     )
                 `);   
                 await db.execAsync(`
+                    
                     CREATE TABLE IF NOT EXISTS chapters (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         chapterId TEXT NOT NULL,
