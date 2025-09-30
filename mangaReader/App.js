@@ -14,6 +14,16 @@ export default function App(){
                         desc TEXT
                     )
                 `);   
+                await db.execAsync(`
+                    CREATE TABLE IF NOT EXISTS chapters (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        chapterId TEXT NOT NULL,
+                        mangaId TEXT NOT NULL,
+                        createdAt TEXT,
+                        chapterNumber TEXT,
+                        FOREIGN KEY (mangaId) REFERENCES library(mangaId) ON DELETE CASCADE
+                    )
+                `)
             }}
         >
             < MyApp />
