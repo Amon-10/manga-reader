@@ -176,11 +176,12 @@ export default function MangaDetailsScreen({ libraryList, setLibraryList, route 
       const description = manga?.attributes?.description?.en
         || Object.values(manga?.attributes?.description || {})[0]
         || 'No description';
+      const mangaStatus = manga?.attributes?.status || 'No status'
 
       // 1) insert library row immediately
       await db.runAsync(
-        `INSERT OR IGNORE INTO library (mangaId, cover, title, desc) VALUES (?, ?, ?, ?)`,
-        [manga.id, finalCover, title, description]
+        `INSERT OR IGNORE INTO library (mangaId, cover, title, desc, status) VALUES (?, ?, ?, ?, ?)`,
+        [manga.id, finalCover, title, description, mangaStatus]
       );
 
       // 2) update parent library list and UI immediately
@@ -239,7 +240,7 @@ export default function MangaDetailsScreen({ libraryList, setLibraryList, route 
           <Text style={{ fontSize: 23 }}>
             {manga?.attributes?.title?.en || Object.values(manga?.attributes?.title || {})[0] || manga.title || 'Untitled'}
           </Text>
-          <Text style={{ fontSize: 15 }}>Status: {manga?.attributes?.status}</Text>
+          <Text style={{ fontSize: 15 }}>Status: {manga?.attributes?.status || manga.status}</Text>
           <Text style={{ fontSize: 15 }}>MangaDex</Text>
         </View>
       </View>
