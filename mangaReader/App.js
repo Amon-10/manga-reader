@@ -11,6 +11,7 @@ export default function App(){
                         mangaId TEXT UNIQUE PRIMARY KEY,
                         cover TEXT NOT NULL,
                         title TEXT NOT NULL,
+                        status TEXT NOT NULL,
                         desc TEXT
                     )
                 `);   

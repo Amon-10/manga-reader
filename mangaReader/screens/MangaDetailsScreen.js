@@ -237,7 +237,7 @@ export default function MangaDetailsScreen({ libraryList, setLibraryList, route 
         </View>
         <View style={{ justifyContent: 'center', width: '60%' }}>
           <Text style={{ fontSize: 23 }}>
-            {manga?.attributes?.title?.en || Object.values(manga?.attributes?.title || {})[0] || 'Untitled'}
+            {manga?.attributes?.title?.en || Object.values(manga?.attributes?.title || {})[0] || manga.title || 'Untitled'}
           </Text>
           <Text style={{ fontSize: 15 }}>Status: {manga?.attributes?.status}</Text>
           <Text style={{ fontSize: 15 }}>MangaDex</Text>
@@ -254,7 +254,7 @@ export default function MangaDetailsScreen({ libraryList, setLibraryList, route 
       </View>
 
       <Text style={{ marginTop: 25 }}>
-        {manga?.attributes?.description?.en || Object.values(manga?.attributes?.description || {})[0] || 'No description'}
+        {manga?.attributes?.description?.en || Object.values(manga?.attributes?.description || {})[0] || manga.desc || 'No description'}
       </Text>
     </View>
   );
