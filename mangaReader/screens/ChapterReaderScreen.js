@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  ActivityIndicator,
-  Dimensions,
-  FlatList,
-} from 'react-native';
+import { View, Text, Image, ActivityIndicator, Dimensions, FlatList } from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -99,7 +92,10 @@ export default function ChapterReaderScreen({ route }) {
       maxToRenderPerBatch={10}
       windowSize={10}
       renderItem={({ item, index }) => (
-        <AutoSizedImage uri={item} index={index} />
+        <View style={{ alignItems: 'center', marginBottom: 8 }}>
+          <AutoSizedImage uri={item} index={index} />
+            <Text style={{ fontSize: 12, color: 'black' }}> {index + 1} / { pages.length }</Text>
+        </View>
       )}
     />
   );
