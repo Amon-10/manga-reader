@@ -37,6 +37,7 @@ export default function ChapterReaderScreen({ route }) {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const db = useSQLiteContext();
 
   useEffect(() => {
     const fetchPages = async () => {
@@ -84,6 +85,34 @@ export default function ChapterReaderScreen({ route }) {
       </View>
     );
   }
+
+  useEffect(() => {
+    const startTracking = async () => {
+      await db.runAsync(
+        `INSERT OR IGNORE INTO history(chapterId, mangaId) VALUES (?, ?)`,
+        [chapter.id, chapter.mangaId]
+      );
+    };
+
+    const handlePageChange = async (index) => {
+      await db.runAsync(
+        `UPDATE history SET lastPage = ? WHERE chapterId = ?`,
+        [index, chapter.id]
+      );
+    };
+
+    const markCompleted = async () => {
+      await db.runAsync(
+        `UPDATE history SET completed = 1 WHERE chapterId = ?`,
+        [chapter.id]
+      );
+    };
+
+    startTracking();
+    handlePageChange();
+    markCompleted();
+
+  }, [chapter.id]);
 
   return (
     <FlatList

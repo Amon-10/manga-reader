@@ -24,7 +24,19 @@ export default function LibraryScreen({libraryList, setLibraryList, navigation})
     console.log("libraryList updated:", JSON.stringify(libraryList, null, 2));
   }, [libraryList]);
 
+  const logHistoryTable = async () => {
+      try {
+          const result = await db.getAllAsync(`SELECT * from history`);
+          console.log(`History Table: `, result);
+      } catch(error){
+          console.error(`Error logging history`, error);
+      }
+  };
 
+  useEffect(() => {
+    logHistoryTable();
+  }, []);
+  
   return (
     <View style={{ flex: 1, padding: 14 }}>
       {libraryList.length === 0
