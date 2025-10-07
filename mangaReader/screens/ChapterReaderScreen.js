@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ActivityIndicator, Dimensions, FlatList } from 'react-native';
+import { useSQLiteContext } from 'expo-sqlite';
 
 const screenWidth = Dimensions.get('window').width;
 
