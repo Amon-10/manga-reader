@@ -25,7 +25,17 @@ export default function App(){
                         chapterNumber TEXT,
                         FOREIGN KEY (mangaId) REFERENCES library(mangaId) ON DELETE CASCADE
                     )
-                `)
+                `);
+                await db.execAsync(`
+                    CREATE TABLE IF NOT EXISTS history (
+                        chapterId TEXT PRIMARY KEY NOT NULL,
+                        mangaId TEXT NOT NULL,
+                        lastPage INTEGER DEFAULT 0,
+                        completed INTEGER DEFAULT 0,
+                        lastRead TEXT DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (mangaId) REFERENCES library(mangaId)
+                        )
+                `);
             }}
         >
             < MyApp />
