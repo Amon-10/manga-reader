@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { View, Text, Image, ActivityIndicator, Dimensions, FlatList } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 
@@ -8,15 +8,19 @@ function AutoSizedImage({ uri, index }) {
   const [ratio, setRatio] = useState(0.7); // default ratio for manga
 
   useEffect(() => {
+    let mounted = true;
     Image.getSize(
       uri,
       (width, height) => {
-        if (width && height) {
+        if (mounted && width && height) {
           setRatio(width / height); // dynamically adjust ratio
         }
       },
       () => console.warn(`Failed to get size for image ${index + 1}`)
     );
+    return () => {
+      mounted = false;
+    };
   }, [uri]);
 
   return (
@@ -33,14 +37,27 @@ function AutoSizedImage({ uri, index }) {
 }
 
 export default function ChapterReaderScreen({ route }) {
-  const { chapter } = route.params;
+  const { chapter } = route.params || {};
+
+  // Hooks must run unconditionally at top-level
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const db = useSQLiteContext();
+  const flatListRef = useRef(null);
+  const currentIndexRef = useRef(0);
 
+  // Fetch pages
   useEffect(() => {
+    let cancelled = false;
+
     const fetchPages = async () => {
+      if (!chapter || !chapter.id) {
+        setError(true);
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch(
           `https://api.mangadex.org/at-home/server/${chapter.id}`
@@ -55,17 +72,69 @@ export default function ChapterReaderScreen({ route }) {
           (file) => `${data.baseUrl}/data/${data.chapter.hash}/${file}`
         );
 
-        setPages(imageUrls);
+        if (!cancelled) setPages(imageUrls);
       } catch (err) {
         console.error('Error fetching chapter images', err);
-        setError(true);
+        if (!cancelled) setError(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchPages();
-  }, [chapter.id]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [chapter]);
+
+  // Safe DB helpers: check for runAsync and catch errors
+  const safeRun = useCallback(async (sql, params = []) => {
+    try {
+      if (db && typeof db.runAsync === 'function') {
+        await db.runAsync(sql, params);
+      } else {
+        // fallback: try exec or ignore
+        console.warn('DB runAsync not available; skipping:', sql);
+      }
+    } catch (e) {
+      console.warn('DB operation failed', e);
+    }
+  }, [db]);
+
+  // Start tracking history when chapter loads
+  useEffect(() => {
+    if (!chapter || !chapter.id) return;
+
+    safeRun(
+      `INSERT OR IGNORE INTO history(chapterId, mangaId, lastPage, completed) VALUES (?, ?, ?, ?)`,
+      [chapter.id, chapter.mangaId || null, 0, 0]
+    );
+  }, [chapter, safeRun]);
+
+  // Viewability callback to update last page and mark completed at last page
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (!viewableItems || viewableItems.length === 0) return;
+    const firstVisible = viewableItems[0];
+    const index = firstVisible.index ?? 0;
+    currentIndexRef.current = index;
+
+    // update last page (use 1-based index for UX)
+    safeRun(
+      `UPDATE history SET lastPage = ? WHERE chapterId = ?`,
+      [index + 1, chapter.id]
+    );
+
+    // if last page, mark completed
+    if (pages.length > 0 && index === pages.length - 1) {
+      safeRun(
+        `UPDATE history SET completed = 1 WHERE chapterId = ?`,
+        [chapter.id]
+      );
+    }
+  }).current;
+
+  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
   if (loading) {
     return (
@@ -86,36 +155,9 @@ export default function ChapterReaderScreen({ route }) {
     );
   }
 
-  useEffect(() => {
-    const startTracking = async () => {
-      await db.runAsync(
-        `INSERT OR IGNORE INTO history(chapterId, mangaId) VALUES (?, ?)`,
-        [chapter.id, chapter.mangaId]
-      );
-    };
-
-    const handlePageChange = async (index) => {
-      await db.runAsync(
-        `UPDATE history SET lastPage = ? WHERE chapterId = ?`,
-        [index, chapter.id]
-      );
-    };
-
-    const markCompleted = async () => {
-      await db.runAsync(
-        `UPDATE history SET completed = 1 WHERE chapterId = ?`,
-        [chapter.id]
-      );
-    };
-
-    startTracking();
-    handlePageChange();
-    markCompleted();
-
-  }, [chapter.id]);
-
   return (
     <FlatList
+      ref={flatListRef}
       data={pages}
       keyExtractor={(item, index) => `${chapter.id}-${index}`}
       initialNumToRender={6}
@@ -124,9 +166,11 @@ export default function ChapterReaderScreen({ route }) {
       renderItem={({ item, index }) => (
         <View style={{ alignItems: 'center', marginBottom: 8 }}>
           <AutoSizedImage uri={item} index={index} />
-            <Text style={{ fontSize: 12, color: 'black' }}> {index + 1} / { pages.length }</Text>
+          <Text style={{ fontSize: 12, color: 'black' }}> {index + 1} / { pages.length }</Text>
         </View>
       )}
+      onViewableItemsChanged={onViewableItemsChanged}
+      viewabilityConfig={viewabilityConfig}
     />
   );
 }
