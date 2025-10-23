@@ -37,7 +37,7 @@ function AutoSizedImage({ uri, index }) {
 }
 
 export default function ChapterReaderScreen({ route }) {
-  const { chapter } = route.params || {};
+  const { chapter, initialPage = 0 } = route.params || {};
 
   // Hooks must run unconditionally at top-level
   const [pages, setPages] = useState([]);
@@ -110,7 +110,31 @@ export default function ChapterReaderScreen({ route }) {
       `INSERT OR IGNORE INTO history(chapterId, mangaId, lastPage, completed) VALUES (?, ?, ?, ?)`,
       [chapter.id, chapter.mangaId || null, 0, 0]
     );
+    // ensure existing row has mangaId set (fix rows created without mangaId)
+    if (chapter.mangaId) {
+      safeRun(
+        `UPDATE history SET mangaId = ? WHERE chapterId = ? AND (mangaId IS NULL OR mangaId = '')`,
+        [chapter.mangaId, chapter.id]
+      );
+    }
   }, [chapter, safeRun]);
+
+  // scroll to initialPage when pages are loaded
+  useEffect(() => {
+    if (!flatListRef.current || pages.length === 0) return;
+    const idx = Math.max(0, Math.floor(Number(initialPage) || 0));
+    setTimeout(() => {
+      try {
+        flatListRef.current.scrollToIndex({ index: idx, animated: false });
+        currentIndexRef.current = idx;
+        // update history lastPage to the stored page (1-based)
+        safeRun(`UPDATE history SET lastPage = ?, lastRead = CURRENT_TIMESTAMP WHERE chapterId = ?`, [idx + 1, chapter.id]);
+      } catch (e) {
+        // scrollToIndex can throw if not in range; ignore
+        console.warn('Could not scroll to initial page', e);
+      }
+    }, 100);
+  }, [pages, flatListRef, initialPage, safeRun, chapter]);
 
   // Viewability callback to update last page and mark completed at last page
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
@@ -119,16 +143,16 @@ export default function ChapterReaderScreen({ route }) {
     const index = firstVisible.index ?? 0;
     currentIndexRef.current = index;
 
-    // update last page (use 1-based index for UX)
+    // update last page (use 1-based index for UX) and update lastRead timestamp
     safeRun(
-      `UPDATE history SET lastPage = ? WHERE chapterId = ?`,
+      `UPDATE history SET lastPage = ?, lastRead = CURRENT_TIMESTAMP WHERE chapterId = ?`,
       [index + 1, chapter.id]
     );
 
     // if last page, mark completed
     if (pages.length > 0 && index === pages.length - 1) {
       safeRun(
-        `UPDATE history SET completed = 1 WHERE chapterId = ?`,
+        `UPDATE history SET completed = 1, lastRead = CURRENT_TIMESTAMP WHERE chapterId = ?`,
         [chapter.id]
       );
     }
@@ -160,6 +184,12 @@ export default function ChapterReaderScreen({ route }) {
       ref={flatListRef}
       data={pages}
       keyExtractor={(item, index) => `${chapter.id}-${index}`}
+      // estimate each item height so scrollToIndex can calculate offsets
+      getItemLayout={(data, index) => {
+        // assume typical manga page aspect ratio roughly 0.7 (width / height)
+        const estHeight = Math.round(screenWidth / 0.7) + 8; // +8 marginBottom
+        return { length: estHeight, offset: estHeight * index, index };
+      }}
       initialNumToRender={6}
       maxToRenderPerBatch={10}
       windowSize={10}
@@ -170,6 +200,23 @@ export default function ChapterReaderScreen({ route }) {
         </View>
       )}
       onViewableItemsChanged={onViewableItemsChanged}
+      onScrollToIndexFailed={({ index, averageItemLength }) => {
+        console.warn('onScrollToIndexFailed, falling back', index, averageItemLength);
+        // try a fallback: scroll to offset using approximate item length
+        const est = Math.round(averageItemLength || (screenWidth / 0.7) + 8);
+        try {
+          flatListRef.current.scrollToOffset({ offset: est * index, animated: false });
+        } catch (err) {
+          // last resort: setTimeout to retry scrollToIndex once more
+          setTimeout(() => {
+            try {
+              flatListRef.current.scrollToIndex({ index, animated: false });
+            } catch (e) {
+              console.warn('Retry scrollToIndex failed', e);
+            }
+          }, 200);
+        }
+      }}
       viewabilityConfig={viewabilityConfig}
     />
   );
