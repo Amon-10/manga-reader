@@ -34,7 +34,6 @@ export default function MangaDetailsScreen({ libraryList, setLibraryList, route 
   const [isInLibrary, setIsInLibrary] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [coverUrl, setCoverUrl] = useState(null);
-  const [historyMap, setHistoryMap] = useState({});
 
   // hide tab bar
   useLayoutEffect(() => {
@@ -117,11 +116,6 @@ export default function MangaDetailsScreen({ libraryList, setLibraryList, route 
           );
           if (mounted && local?.length > 0) {
             setChapterList(uniqAndSort(local));
-            // load history for this manga to show completed state
-            const histRows = await db.getAllAsync(`SELECT chapterId, lastPage, completed, lastRead FROM history WHERE mangaId = ?`, [manga.id]);
-            const map = {};
-            (histRows || []).forEach(r => { map[r.chapterId] = r; });
-            if (mounted) setHistoryMap(map);
             setRefreshing(false);
             return; // show cached and STOP (we don't force an API fetch on add)
           }
@@ -131,11 +125,6 @@ export default function MangaDetailsScreen({ libraryList, setLibraryList, route 
         // not saved OR no cached chapters -> fetch from API and display (do NOT save unless caller chooses to)
         const apiChaps = await fetchChaptersFromApi(manga.id);
         if (mounted) setChapterList(apiChaps);
-        // also load history (may be empty)
-        const histRowsApi = await db.getAllAsync(`SELECT chapterId, lastPage, completed, lastRead FROM history WHERE mangaId = ?`, [manga.id]);
-        const mapApi = {};
-        (histRowsApi || []).forEach(r => { mapApi[r.chapterId] = r; });
-        if (mounted) setHistoryMap(mapApi);
       } catch (err) {
         console.error('Initial load failed', err);
       } finally {
@@ -276,26 +265,15 @@ export default function MangaDetailsScreen({ libraryList, setLibraryList, route 
       <FlatList
         data={chapterList}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => {
-          const hist = historyMap[item.id];
-          const completed = hist && Number(hist.completed) === 1;
-          return (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('ChapterReader', { chapter: { ...item, mangaId: manga.id } })}
-              style={{ width: '100%', padding: 5, marginVertical: 2, backgroundColor: completed ? '#e6e6e6' : '#f2f2f2', left: 18 }}
-            >
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View>
-                  <Text style={{ fontSize: 16, color: completed ? '#999' : '#000' }}>Chapter {item.number}</Text>
-                  <Text style={{ fontSize: 12, color: completed ? '#999' : '#444' }}>date added: {item.createdAt || 'N/A'}</Text>
-                </View>
-                {completed ? (
-                  <Ionicons name='checkmark-circle' size={20} color='green' />
-                ) : null}
-              </View>
-            </TouchableOpacity>
-          );
-        }}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ChapterReader', { chapter: item })}
+            style={{ width: '100%', padding: 5, marginVertical: 2, backgroundColor: '#f2f2f2', left: 18 }}
+          >
+            <Text style={{ fontSize: 16 }}>Chapter {item.number}</Text>
+            <Text style={{ fontSize: 12 }}>date added: {item.createdAt || 'N/A'}</Text>
+          </TouchableOpacity>
+        )}
         ListHeaderComponent={renderHeader}
         refreshing={refreshing}
         onRefresh={onRefresh}
@@ -310,30 +288,7 @@ export default function MangaDetailsScreen({ libraryList, setLibraryList, route 
       />
 
       <View style={{ position: 'absolute', bottom: 30, right: 10, alignItems: 'center', elevation: 5, zIndex: 100 }}>
-        <TouchableOpacity
-          onPress={async () => {
-            try {
-              // find last-read history for this manga
-              const rows = await db.getAllAsync(`SELECT chapterId, lastPage FROM history WHERE mangaId = ? ORDER BY lastRead DESC LIMIT 1`, [manga.id]);
-                if (rows && rows.length > 0) {
-                const last = rows[0];
-                // find the chapter data in the list to get chapterNumber etc
-                const chapterItem = chapterList.find(c => c.id === last.chapterId) || chapterList[0];
-                const initialPage = Number(last.lastPage) > 0 ? Number(last.lastPage) - 1 : 0; // convert to 0-based index
-                navigation.navigate('ChapterReader', { chapter: { ...chapterItem, mangaId: manga.id }, initialPage });
-              } else {
-                // no history: open first chapter at page 0
-                const first = chapterList[0];
-                if (first) navigation.navigate('ChapterReader', { chapter: { ...first, mangaId: manga.id }, initialPage: 0 });
-                else alert('No chapters available to read.');
-              }
-            } catch (err) {
-              console.error('Read now failed', err);
-              alert('Could not open reader.');
-            }
-          }}
-          style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'red', padding: 15, borderRadius: 7 }}
-        >
+        <TouchableOpacity onPress={() => alert('Read now button')} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'red', padding: 15, borderRadius: 7 }}>
           <Ionicons name='caret-forward-outline' color='white' size={25} />
           <Text style={{ color: 'white', fontSize: 12, marginLeft: 10 }}>Read</Text>
         </TouchableOpacity>
