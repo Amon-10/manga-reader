@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { View, Text, Image, ActivityIndicator, Dimensions, FlatList } from 'react-native';
+import { View, Text, Image, ActivityIndicator, Dimensions, FlatList, Animated } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 
 const screenWidth = Dimensions.get('window').width;
@@ -43,9 +43,11 @@ export default function ChapterReaderScreen({ route }) {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [resumeToast, setResumeToast] = useState('');
   const db = useSQLiteContext();
   const flatListRef = useRef(null);
   const currentIndexRef = useRef(0);
+  const toastOpacity = useRef(new Animated.Value(0)).current;
 
   // Fetch pages
   useEffect(() => {
@@ -129,6 +131,14 @@ export default function ChapterReaderScreen({ route }) {
         currentIndexRef.current = idx;
         // update history lastPage to the stored page (1-based)
         safeRun(`UPDATE history SET lastPage = ?, lastRead = CURRENT_TIMESTAMP WHERE chapterId = ?`, [idx + 1, chapter.id]);
+        if (idx > 0) {
+          setResumeToast(`Resuming at page ${idx + 1}`);
+          Animated.timing(toastOpacity, { toValue: 1, duration: 200, useNativeDriver: true }).start(() => {
+            setTimeout(() => {
+              Animated.timing(toastOpacity, { toValue: 0, duration: 300, useNativeDriver: true }).start(() => setResumeToast(''));
+            }, 1500);
+          });
+        }
       } catch (e) {
         // scrollToIndex can throw if not in range; ignore
         console.warn('Could not scroll to initial page', e);
@@ -219,5 +229,15 @@ export default function ChapterReaderScreen({ route }) {
       }}
       viewabilityConfig={viewabilityConfig}
     />
+  );
+}
+
+// small overlay component to show resume toast
+function ResumeOverlay({ text, opacity }) {
+  if (!text) return null;
+  return (
+    <Animated.View style={{ position: 'absolute', top: 60, alignSelf: 'center', backgroundColor: 'rgba(0,0,0,0.75)', padding: 8, borderRadius: 6, opacity }}>
+      <Text style={{ color: 'white' }}>{text}</Text>
+    </Animated.View>
   );
 }

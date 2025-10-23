@@ -284,8 +284,15 @@ export default function MangaDetailsScreen({ libraryList, setLibraryList, route 
               onPress={() => navigation.navigate('ChapterReader', { chapter: { ...item, mangaId: manga.id } })}
               style={{ width: '100%', padding: 5, marginVertical: 2, backgroundColor: completed ? '#e6e6e6' : '#f2f2f2', left: 18 }}
             >
-              <Text style={{ fontSize: 16, color: completed ? '#999' : '#000' }}>Chapter {item.number}</Text>
-              <Text style={{ fontSize: 12, color: completed ? '#999' : '#444' }}>date added: {item.createdAt || 'N/A'}</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View>
+                  <Text style={{ fontSize: 16, color: completed ? '#999' : '#000' }}>Chapter {item.number}</Text>
+                  <Text style={{ fontSize: 12, color: completed ? '#999' : '#444' }}>date added: {item.createdAt || 'N/A'}</Text>
+                </View>
+                {completed ? (
+                  <Ionicons name='checkmark-circle' size={20} color='green' />
+                ) : null}
+              </View>
             </TouchableOpacity>
           );
         }}
